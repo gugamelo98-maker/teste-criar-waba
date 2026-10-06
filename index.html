@@ -30,22 +30,24 @@
 
   * { box-sizing: border-box; margin: 0; padding: 0; }
 
-  html, body {
+  html {
     height: 100%;
+    overflow-y: auto;
+  }
+
+  body {
     background: var(--bg);
     color: var(--fg);
     font-family: 'Inter', system-ui, sans-serif;
     font-size: 14px;
     line-height: 1.6;
-  }
-
-  body {
-    min-height: 100vh;
-    padding: 32px 16px;
+    padding: 24px 16px 40px;
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 24px;
+    gap: 20px;
+    min-height: 100%;
+    overflow-y: auto;
   }
 
   .logo-bar {
@@ -128,10 +130,10 @@
   }
 
   .card-body {
-    padding: 24px;
+    padding: 20px;
     display: flex;
     flex-direction: column;
-    gap: 18px;
+    gap: 14px;
   }
 
   .field {
@@ -180,8 +182,8 @@
     font-family: 'JetBrains Mono', monospace;
     font-size: 12px;
     resize: vertical;
-    min-height: 100px;
-    max-height: 220px;
+    min-height: 80px;
+    max-height: 140px;
     line-height: 1.5;
   }
 
