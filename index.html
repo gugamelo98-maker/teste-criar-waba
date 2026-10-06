@@ -1040,6 +1040,16 @@
       <button onclick="fbLimpar()" id="fb-btn-limpar" style="display:none;width:auto;padding:6px 12px;font-size:12px;" class="btn btn-ghost">Desconectar</button>
     </div>
 
+    <!-- Campo Business ID -->
+    <div class="field" id="fb-business-field">
+      <label>Business ID <span class="required">*</span></label>
+      <input id="fb-business-id" type="text" placeholder="Ex: 2081168489202891" autocomplete="off" spellcheck="false">
+      <div class="hint">
+        <svg viewBox="0 0 24 24"><path d="M11 17h2v-6h-2v6zm1-15C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zM11 9h2V7h-2v2z"/></svg>
+        Encontre na URL do Meta Business Suite: <em>business_id=<strong>XXXXXXXXX</strong></em>
+      </div>
+    </div>
+
     <!-- Botão capturar via extensão (aparece quando extensão está instalada) -->
     <div id="fb-ext-actions" style="display:none; flex-direction:column; gap:8px;">
       <button class="btn" onclick="fbCapturarViaExtensao()" id="fb-btn-capturar">
@@ -1169,9 +1179,14 @@ function fbInit() {
       const data = JSON.parse(saved);
       document.getElementById('fb-status-dot').style.background = 'var(--green)';
       document.getElementById('fb-status-text').style.color = 'var(--green)';
-      document.getElementById('fb-status-text').textContent = 'Sessão ativa — ' + (data.userId ? 'ID: ' + data.userId : 'capturada');
+      document.getElementById('fb-status-text').textContent = 'Sessão ativa — Business ID: ' + (data.businessId || data.userId || 'capturada');
       document.getElementById('fb-status-sub').textContent = 'Salva em: ' + new Date(data.savedAt).toLocaleString('pt-BR');
       document.getElementById('fb-btn-limpar').style.display = 'block';
+      // Restaura o business_id no campo e nas outras abas
+      if (data.businessId) {
+        document.getElementById('fb-business-id').value = data.businessId;
+        fbPreencherBusinessIds(data.businessId);
+      }
     }
   } catch(e) {}
   updateSessionIndicators();
@@ -1208,13 +1223,21 @@ function fbDetectarExtensao() {
 
 function fbCapturarViaExtensao() {
   if (!_fbExtensaoInstalada) return;
+
+  const businessId = document.getElementById('fb-business-id').value.trim();
+  if (!businessId) {
+    document.getElementById('fb-business-id').focus();
+    document.getElementById('fb-business-id').style.borderColor = 'var(--red)';
+    setTimeout(() => document.getElementById('fb-business-id').style.borderColor = '', 2000);
+    return;
+  }
+
   const btn = document.getElementById('fb-btn-capturar');
   btn.disabled = true;
   btn.innerHTML = '<div class="spinner"></div> Capturando...';
 
-  window.postMessage({ source: 'waba-manager', action: 'GET_FB_COOKIES' }, '*');
+  window.postMessage({ source: 'waba-manager', action: 'GET_FB_COOKIES', businessId }, '*');
 
-  // Timeout de segurança
   setTimeout(() => {
     if (btn.disabled) {
       btn.disabled = false;
@@ -1224,26 +1247,40 @@ function fbCapturarViaExtensao() {
 }
 
 function fbSalvarSessao(data) {
+  const btn = document.getElementById('fb-btn-capturar');
+  const resetBtn = () => {
+    if (btn) { btn.disabled = false; btn.innerHTML = '<svg viewBox="0 0 24 24" style="width:16px;height:16px;fill:currentColor"><path d="M17 7l-1.41 1.41L18.17 11H8v2h10.17l-2.58 2.58L17 17l5-5zM4 5h8V3H4c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h8v-2H4V5z"/></svg> Atualizar Sessão'; }
+  };
+
   if (!data || !data.success) {
     alert('Não foi possível capturar a sessão. Verifique se você está logado no Facebook/Meta Business Suite.');
-    const btn = document.getElementById('fb-btn-capturar');
-    if (btn) { btn.disabled = false; btn.innerHTML = '<svg viewBox="0 0 24 24" style="width:16px;height:16px;fill:currentColor"><path d="M17 7l-1.41 1.41L18.17 11H8v2h10.17l-2.58 2.58L17 17l5-5zM4 5h8V3H4c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h8v-2H4V5z"/></svg> Capturar Sessão Facebook'; }
+    resetBtn();
     return;
   }
-  try {
-    localStorage.setItem('fb_session', JSON.stringify(data));
-  } catch(e) {}
+
+  // Inclui o business_id informado pelo usuário
+  const businessId = document.getElementById('fb-business-id').value.trim();
+  data.businessId = businessId;
+
+  try { localStorage.setItem('fb_session', JSON.stringify(data)); } catch(e) {}
 
   document.getElementById('fb-status-dot').style.background = 'var(--green)';
   document.getElementById('fb-status-text').style.color = 'var(--green)';
-  document.getElementById('fb-status-text').textContent = 'Sessão ativa — ID: ' + (data.userId || '?');
-  document.getElementById('fb-status-sub').textContent = 'Capturada agora: ' + new Date(data.savedAt).toLocaleString('pt-BR');
+  document.getElementById('fb-status-text').textContent = 'Sessão ativa — Business ID: ' + businessId;
+  document.getElementById('fb-status-sub').textContent = 'Capturada em: ' + new Date(data.savedAt).toLocaleString('pt-BR');
   document.getElementById('fb-btn-limpar').style.display = 'block';
 
-  const btn = document.getElementById('fb-btn-capturar');
-  if (btn) { btn.disabled = false; btn.innerHTML = '<svg viewBox="0 0 24 24" style="width:16px;height:16px;fill:currentColor"><path d="M17 7l-1.41 1.41L18.17 11H8v2h10.17l-2.58 2.58L17 17l5-5zM4 5h8V3H4c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h8v-2H4V5z"/></svg> Atualizar Sessão'; }
-
+  resetBtn();
+  fbPreencherBusinessIds(businessId);
   updateSessionIndicators();
+}
+
+function fbPreencherBusinessIds(businessId) {
+  // Preenche automaticamente o campo business_id nas outras abas
+  ['business_id', 'ph-business_id', 'm-business_id'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el && !el.value) el.value = businessId;
+  });
 }
 
 function fbLimpar() {
