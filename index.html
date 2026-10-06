@@ -1103,10 +1103,11 @@
         <div style="width:24px;height:24px;border-radius:50%;background:var(--accent);color:#fff;font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;">2</div>
         <div style="flex:1">
           <div style="font-size:13px;font-weight:600;margin-bottom:4px;">Abra as extensões do Chrome</div>
-          <button class="btn btn-ghost" onclick="window.open('chrome://extensions','_blank')" style="width:auto;padding:8px 16px;font-size:13px;">
-            Abrir chrome://extensions ↗
-          </button>
-          <div style="font-size:11px;color:var(--fg-muted);margin-top:6px;">Ative o <strong>Modo desenvolvedor</strong> (toggle no canto superior direito).</div>
+          <div style="display:flex;align-items:center;gap:8px;">
+            <code id="ext-url" style="padding:8px 12px;background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-sm);font-size:13px;font-family:'JetBrains Mono',monospace;flex:1;">chrome://extensions</code>
+            <button class="btn btn-ghost" onclick="navigator.clipboard.writeText('chrome://extensions').then(()=>{this.textContent='✓ Copiado';setTimeout(()=>this.textContent='Copiar',2000)})" style="width:auto;padding:8px 14px;font-size:12px;flex-shrink:0;">Copiar</button>
+          </div>
+          <div style="font-size:11px;color:var(--fg-muted);margin-top:6px;">Cole na barra de endereço do Chrome e pressione Enter. Ative o <strong>Modo desenvolvedor</strong> (toggle no canto superior direito).</div>
         </div>
       </div>
 
