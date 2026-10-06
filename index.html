@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>Criar WABA</title>
+<title>WABA Manager</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap">
 <style>
   :root {
@@ -560,6 +560,69 @@
   }
   .multi-header.show { display: flex; }
 
+  /* Tabs */
+  .tabs {
+    width: 100%;
+    max-width: 640px;
+    display: flex;
+    gap: 4px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 5px;
+  }
+  .tab-btn {
+    flex: 1;
+    background: none;
+    border: none;
+    border-radius: calc(var(--radius) - 3px);
+    color: var(--fg-muted);
+    cursor: pointer;
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 600;
+    padding: 9px 12px;
+    transition: background 0.15s, color 0.15s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+  }
+  .tab-btn svg { width: 15px; height: 15px; fill: currentColor; }
+  .tab-btn:hover { background: var(--surface2); color: var(--fg); }
+  .tab-btn.active { background: var(--accent); color: white; }
+  .tab-btn.active svg { fill: white; }
+
+  .tab-panel { display: none; }
+  .tab-panel.active { display: contents; }
+
+  /* Phone result */
+  .phone-id-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 12px 14px;
+  }
+  .phone-id-label {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--fg-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    white-space: nowrap;
+  }
+  .phone-id-value {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 15px;
+    font-weight: 500;
+    color: var(--accent);
+    flex: 1;
+    word-break: break-all;
+  }
+
   @media (max-width: 440px) {
     body { padding: 20px 12px; }
     .card-body { padding: 18px; }
@@ -574,8 +637,23 @@
   <div class="logo-icon">
     <svg viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
   </div>
-  <span class="logo-text">Criar <span>WABA</span></span>
+  <span class="logo-text">WABA <span>Manager</span></span>
 </div>
+
+<!-- Tabs -->
+<div class="tabs">
+  <button class="tab-btn active" id="tab-criar" onclick="switchTab('criar')">
+    <svg viewBox="0 0 24 24"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
+    Criar WABA
+  </button>
+  <button class="tab-btn" id="tab-phone" onclick="switchTab('phone')">
+    <svg viewBox="0 0 24 24"><path d="M6.62 10.79c1.44 2.83 3.76 5.14 6.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z"/></svg>
+    Adicionar Número
+  </button>
+</div>
+
+<!-- ===== TAB CRIAR WABA ===== -->
+<div class="tab-panel active" id="panel-criar">
 
 <div class="webhook-pill">
   <div class="webhook-pill-dot"></div>
@@ -593,7 +671,7 @@
     </div>
   </div>
 
-  <form class="card-body" id="form" onsubmit="return false;">
+  <form class="card-body" onsubmit="return false;">
     <div class="field">
       <label>Cookies da Sessão <span class="required">*</span></label>
       <textarea
@@ -612,13 +690,7 @@
     <div class="row">
       <div class="field">
         <label>Business ID <span class="required">*</span></label>
-        <input
-          id="business_id"
-          type="text"
-          placeholder="803068770186829"
-          autocomplete="off"
-          spellcheck="false"
-        >
+        <input id="business_id" type="text" placeholder="803068770186829" autocomplete="off" spellcheck="false">
       </div>
       <div class="field">
         <label>Fuso Horário</label>
@@ -640,12 +712,7 @@
 
     <div class="field">
       <label>Nome da WABA <span class="required">*</span></label>
-      <input
-        id="waba_name"
-        type="text"
-        placeholder="Ex: Atendimento, Suporte, Marketing..."
-        autocomplete="off"
-      >
+      <input id="waba_name" type="text" placeholder="Ex: Atendimento, Suporte, Marketing..." autocomplete="off">
     </div>
 
     <div class="field">
@@ -698,9 +765,129 @@
   </div>
 </div>
 
+</div><!-- /panel-criar -->
+
+<!-- ===== TAB ADICIONAR NÚMERO ===== -->
+<div class="tab-panel" id="panel-phone">
+
+<div class="webhook-pill">
+  <div class="webhook-pill-dot"></div>
+  <span class="webhook-url">https://rarelookingorca-n8n.cloudfy.live/webhook/waba-add-phone</span>
+</div>
+
+<div class="card">
+  <div class="card-header">
+    <div class="card-header-icon" style="background:rgba(76,175,142,0.15)">
+      <svg viewBox="0 0 24 24" style="fill:var(--green)"><path d="M6.62 10.79c1.44 2.83 3.76 5.14 6.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z"/></svg>
+    </div>
+    <div>
+      <div class="card-title">Adicionar Número à WABA</div>
+      <div class="card-subtitle">Cria o número e solicita o código SMS de verificação</div>
+    </div>
+  </div>
+
+  <form class="card-body" onsubmit="return false;">
+    <div class="field">
+      <label>Cookies da Sessão <span class="required">*</span></label>
+      <textarea
+        id="ph-cookies"
+        placeholder="datr=...; sb=...; c_user=100006...; xs=39%3A...; fr=1cDnz..."
+        rows="5"
+        spellcheck="false"
+        autocomplete="off"
+      ></textarea>
+      <div class="hint">
+        <svg viewBox="0 0 24 24"><path d="M11 17h2v-6h-2v6zm1-15C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zM11 9h2V7h-2v2z"/></svg>
+        Mesmos cookies do F12 usados na aba Criar WABA
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="field">
+        <label>Business ID <span class="required">*</span></label>
+        <input id="ph-business_id" type="text" placeholder="803068770186829" autocomplete="off" spellcheck="false">
+      </div>
+      <div class="field">
+        <label>Graph API Token <span class="required">*</span></label>
+        <input id="ph-graph-token" type="text" placeholder="EAAhCDcA..." autocomplete="off" spellcheck="false" style="font-size:11px;">
+      </div>
+    </div>
+
+    <div class="field">
+      <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:6px;">
+        <label style="margin:0">WABA sem número <span class="required">*</span></label>
+        <button type="button" id="fetch-wabas-btn" onclick="buscarWABAs()" style="background:none;border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--fg-muted);cursor:pointer;font-family:inherit;font-size:11px;font-weight:600;padding:4px 10px;display:flex;align-items:center;gap:5px;transition:all 0.15s;" onmouseover="this.style.borderColor='var(--accent)';this.style.color='var(--accent)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--fg-muted)'">
+          <svg viewBox="0 0 24 24" style="width:12px;height:12px;fill:currentColor"><path d="M17.65 6.35C16.2 4.9 14.21 4 12 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08c-.82 2.33-3.04 4-5.65 4-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"/></svg>
+          Buscar WABAs
+        </button>
+      </div>
+      <select id="ph-waba_select" style="display:none">
+        <option value="">Selecione uma WABA...</option>
+      </select>
+      <div id="ph-waba-status" style="font-size:12px;color:var(--fg-muted);padding:10px 12px;background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-sm);display:flex;align-items:center;gap:8px;">
+        <svg viewBox="0 0 24 24" style="width:14px;height:14px;fill:var(--fg-muted);flex-shrink:0"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg>
+        Preencha o Business ID e o Token, depois clique em "Buscar WABAs"
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="field">
+        <label>Número de Telefone <span class="required">*</span></label>
+        <input id="ph-phone_number" type="text" placeholder="5548992215602" autocomplete="off" spellcheck="false">
+        <div class="hint" style="margin-top:4px">
+          <svg viewBox="0 0 24 24"><path d="M11 17h2v-6h-2v6zm1-15C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zM11 9h2V7h-2v2z"/></svg>
+          Com DDI e DDD, sem + ou espaços
+        </div>
+      </div>
+      <div class="field">
+        <label>Nome de Exibição</label>
+        <input id="ph-display_name" type="text" placeholder="Atendimento" autocomplete="off">
+      </div>
+    </div>
+
+    <button class="btn" id="phoneBtn" onclick="adicionarNumero()" style="background:var(--green);--accent-hover:#3d9e7a">
+      <svg viewBox="0 0 24 24"><path d="M6.62 10.79c1.44 2.83 3.76 5.14 6.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z"/></svg>
+      Adicionar e Solicitar SMS
+    </button>
+  </form>
+</div>
+
+<!-- Phone Result -->
+<div class="result" id="ph-result">
+  <div class="result-header" id="ph-result-header">
+    <svg id="ph-result-icon" viewBox="0 0 24 24"></svg>
+    <span id="ph-result-title"></span>
+  </div>
+  <div class="result-body">
+    <div class="phone-id-row" id="ph-id-row" style="display:none">
+      <span class="phone-id-label">Phone ID</span>
+      <span class="phone-id-value" id="ph-id-value"></span>
+      <button class="copy-btn" id="ph-copy-btn" onclick="copyPhoneId()">Copiar</button>
+    </div>
+    <div id="ph-result-message" style="font-size:13px;color:var(--fg-muted);line-height:1.6;"></div>
+    <div style="display:flex; justify-content:space-between; align-items:center;">
+      <button class="raw-toggle" id="ph-raw-toggle" onclick="togglePhoneRaw()">
+        <svg viewBox="0 0 24 24"><path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z"/></svg>
+        Ver resposta completa
+      </button>
+    </div>
+    <pre class="raw-json" id="ph-raw-json"></pre>
+  </div>
+</div>
+
+</div><!-- /panel-phone -->
+
 <script>
 const WEBHOOK = 'https://rarelookingorca-n8n.cloudfy.live/webhook/waba-create-meta';
 const WEBHOOK_NOCOOKIE = 'https://rarelookingorca-n8n.cloudfy.live/webhook/waba-test-nocookie';
+const WEBHOOK_PHONE = 'https://rarelookingorca-n8n.cloudfy.live/webhook/waba-add-phone';
+
+function switchTab(name) {
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  document.getElementById('tab-' + name).classList.add('active');
+  document.getElementById('panel-' + name).classList.add('active');
+}
 
 function changeQty(delta) {
   const input = document.getElementById('qty');
@@ -932,6 +1119,181 @@ function updateMultiItem(i, name, status, wabaId, raw) {
 document.getElementById('waba_name').addEventListener('keydown', e => {
   if (e.key === 'Enter') criarWABA();
 });
+
+// ===== BUSCAR WABAs =====
+async function buscarWABAs() {
+  const business_id = document.getElementById('ph-business_id').value.trim();
+  const token       = document.getElementById('ph-graph-token').value.trim();
+  const statusEl    = document.getElementById('ph-waba-status');
+  const selectEl    = document.getElementById('ph-waba_select');
+  const btn         = document.getElementById('fetch-wabas-btn');
+
+  if (!business_id || !token) {
+    statusEl.innerHTML = '<svg viewBox="0 0 24 24" style="width:14px;height:14px;fill:var(--red);flex-shrink:0"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg> Preencha o Business ID e o Token primeiro.';
+    statusEl.style.display = 'flex';
+    selectEl.style.display = 'none';
+    return;
+  }
+
+  btn.disabled = true;
+  btn.innerHTML = '<div class="spinner" style="width:11px;height:11px;border-width:1.5px;border-color:rgba(139,144,184,0.3);border-top-color:var(--fg-muted)"></div> Buscando...';
+  statusEl.innerHTML = '<div class="spinner" style="width:12px;height:12px;border-width:1.5px;border-color:rgba(139,144,184,0.3);border-top-color:var(--fg-muted)"></div> Buscando WABAs...';
+  statusEl.style.display = 'flex';
+  selectEl.style.display = 'none';
+
+  try {
+    const url = `https://graph.facebook.com/v21.0/${business_id}/owned_whatsapp_business_accounts?fields=id,name,phone_numbers{display_phone_number}&limit=100&access_token=${token}`;
+    const resp = await fetch(url);
+    const json = await resp.json();
+
+    if (json.error) {
+      statusEl.innerHTML = `<svg viewBox="0 0 24 24" style="width:14px;height:14px;fill:var(--red);flex-shrink:0"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg> ${json.error.message}`;
+      statusEl.style.display = 'flex';
+      return;
+    }
+
+    const all = json.data || [];
+    const semNumero = all.filter(w => !w.phone_numbers || !w.phone_numbers.data || w.phone_numbers.data.length === 0);
+
+    if (semNumero.length === 0) {
+      statusEl.innerHTML = `<svg viewBox="0 0 24 24" style="width:14px;height:14px;fill:var(--yellow);flex-shrink:0"><path d="M1 21h22L12 2 1 21zm12-3h-2v-2h2v2zm0-4h-2v-4h2v4z"/></svg> ${all.length} WABAs encontradas, mas todas já têm número.`;
+      statusEl.style.display = 'flex';
+      return;
+    }
+
+    selectEl.innerHTML = '<option value="">Selecione uma WABA...</option>' +
+      semNumero.map(w => `<option value="${w.id}">${w.name || 'Sem nome'} — ${w.id}</option>`).join('');
+    selectEl.style.display = 'block';
+    statusEl.innerHTML = `<svg viewBox="0 0 24 24" style="width:14px;height:14px;fill:var(--green);flex-shrink:0"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg> ${semNumero.length} WABA${semNumero.length > 1 ? 's' : ''} sem número (de ${all.length} total).`;
+    statusEl.style.display = 'flex';
+
+  } catch(err) {
+    statusEl.innerHTML = `<svg viewBox="0 0 24 24" style="width:14px;height:14px;fill:var(--red);flex-shrink:0"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg> Erro: ${err.message}`;
+    statusEl.style.display = 'flex';
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = '<svg viewBox="0 0 24 24" style="width:12px;height:12px;fill:currentColor"><path d="M17.65 6.35C16.2 4.9 14.21 4 12 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08c-.82 2.33-3.04 4-5.65 4-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"/></svg> Buscar WABAs';
+  }
+}
+
+// ===== ADICIONAR NÚMERO =====
+async function adicionarNumero() {
+  const cookies      = document.getElementById('ph-cookies').value.trim();
+  const business_id  = document.getElementById('ph-business_id').value.trim();
+  const waba_id      = document.getElementById('ph-waba_select').value.trim();
+  const phone_number = document.getElementById('ph-phone_number').value.trim().replace(/\D/g, '');
+  const display_name = document.getElementById('ph-display_name').value.trim() || 'Atendimento';
+
+  if (!cookies || !business_id || !waba_id || !phone_number) {
+    showPhoneResult('error', 'Campos obrigatórios', !waba_id ? 'Busque e selecione uma WABA sem número antes de continuar.' : 'Preencha todos os campos obrigatórios.', null, null);
+    return;
+  }
+
+  const btn = document.getElementById('phoneBtn');
+  btn.disabled = true;
+  btn.innerHTML = `<div class="spinner"></div> Processando...`;
+  hidePhoneResult();
+
+  try {
+    const resp = await fetch(WEBHOOK_PHONE, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ cookies, business_id, waba_id, phone_number, display_name }),
+    });
+    const text = await resp.text();
+    let data;
+    try { data = JSON.parse(text); } catch { data = { raw: text }; }
+
+    if (!resp.ok) {
+      showPhoneResult('error', `Erro HTTP ${resp.status}`, data?.message || data?.error || 'O webhook retornou um erro.', null, data);
+      return;
+    }
+
+    const phoneId = data?.phone_number_id;
+    if (data?.success && phoneId) {
+      showPhoneResult('success', 'Número adicionado! SMS enviado.', `O número foi criado na WABA e um SMS de verificação foi disparado para ${phone_number}. Aguarde o código.`, phoneId, data);
+    } else if (data?.error || data?.errors) {
+      showPhoneResult('error', 'Erro ao adicionar número', data?.error || JSON.stringify(data?.errors), null, data);
+    } else {
+      showPhoneResult('warning', 'Resposta recebida', 'Webhook respondeu mas não foi possível confirmar. Veja a resposta completa.', null, data);
+    }
+  } catch (err) {
+    showPhoneResult('error', 'Falha na requisição', err.message || 'Não foi possível conectar ao webhook.', null, null);
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = '<svg viewBox="0 0 24 24"><path d="M6.62 10.79c1.44 2.83 3.76 5.14 6.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z"/></svg> Adicionar e Solicitar SMS';
+  }
+}
+
+function showPhoneResult(type, title, message, phoneId, raw) {
+  const resultEl  = document.getElementById('ph-result');
+  const iconEl    = document.getElementById('ph-result-icon');
+  const titleEl   = document.getElementById('ph-result-title');
+  const msgEl     = document.getElementById('ph-result-message');
+  const idRow     = document.getElementById('ph-id-row');
+  const idValEl   = document.getElementById('ph-id-value');
+  const rawEl     = document.getElementById('ph-raw-json');
+  const rawToggle = document.getElementById('ph-raw-toggle');
+
+  resultEl.className = 'result show ' + type;
+
+  const icons = {
+    success: '<path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>',
+    error:   '<path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/>',
+    warning: '<path d="M1 21h22L12 2 1 21zm12-3h-2v-2h2v2zm0-4h-2v-4h2v4z"/>',
+  };
+
+  iconEl.innerHTML = icons[type] || icons.warning;
+  titleEl.textContent = title;
+  msgEl.textContent = message;
+
+  if (phoneId) {
+    idRow.style.display = 'flex';
+    idValEl.textContent = phoneId;
+    document.getElementById('ph-copy-btn').textContent = 'Copiar';
+    document.getElementById('ph-copy-btn').classList.remove('copied');
+  } else {
+    idRow.style.display = 'none';
+  }
+
+  if (raw) {
+    rawEl.textContent = JSON.stringify(raw, null, 2);
+    rawToggle.style.display = 'flex';
+  } else {
+    rawToggle.style.display = 'none';
+    rawEl.classList.remove('show');
+    rawToggle.classList.remove('open');
+  }
+
+  resultEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
+function hidePhoneResult() {
+  document.getElementById('ph-result').className = 'result';
+}
+
+function togglePhoneRaw() {
+  const raw    = document.getElementById('ph-raw-json');
+  const toggle = document.getElementById('ph-raw-toggle');
+  const showing = raw.classList.toggle('show');
+  toggle.classList.toggle('open', showing);
+}
+
+function copyPhoneId() {
+  const val = document.getElementById('ph-id-value').textContent;
+  const btn = document.getElementById('ph-copy-btn');
+  navigator.clipboard.writeText(val).then(() => {
+    btn.textContent = 'Copiado!';
+    btn.classList.add('copied');
+    setTimeout(() => { btn.textContent = 'Copiar'; btn.classList.remove('copied'); }, 2000);
+  }).catch(() => {
+    const sel = window.getSelection();
+    const range = document.createRange();
+    range.selectNodeContents(document.getElementById('ph-id-value'));
+    sel.removeAllRanges();
+    sel.addRange(range);
+  });
+}
 </script>
 
 </body>
