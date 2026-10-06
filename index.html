@@ -715,24 +715,17 @@
       <svg viewBox="0 0 24 24"><path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm0 10.99h7c-.53 4.12-3.28 7.79-7 8.94V12H5V6.3l7-3.11v8.8z"/></svg>
     </div>
     <div>
-      <div class="card-title">Sessão Meta Business Suite</div>
-      <div class="card-subtitle">Cole os cookies do F12 e configure a conta</div>
+      <div class="card-title">Criar WABA</div>
+      <div class="card-subtitle">Cria uma nova WABA no Meta Business Suite</div>
     </div>
   </div>
 
   <form class="card-body" onsubmit="return false;">
     <div class="field">
-      <label>Cookies da Sessão <span class="required">*</span></label>
-      <textarea
-        id="cookies"
-        placeholder="datr=...; sb=...; c_user=100006...; xs=39%3A...; fr=1cDnz..."
-        rows="5"
-        spellcheck="false"
-        autocomplete="off"
-      ></textarea>
-      <div class="hint">
-        <svg viewBox="0 0 24 24"><path d="M11 17h2v-6h-2v6zm1-15C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zM11 9h2V7h-2v2z"/></svg>
-        F12 → Network → qualquer request → Headers → <em>cookie</em>
+      <label>Sessão Facebook</label>
+      <div id="waba-session-status" style="padding:10px 14px; border-radius:var(--radius-sm); background:var(--surface2); border:1px solid var(--border); display:flex; align-items:center; gap:10px; font-size:13px;">
+        <div id="waba-session-dot" style="width:9px;height:9px;border-radius:50%;background:var(--fg-muted);flex-shrink:0;"></div>
+        <span id="waba-session-text" style="color:var(--fg-muted);">Nenhuma sessão conectada — vá até a aba Facebook para conectar</span>
       </div>
     </div>
 
@@ -836,19 +829,9 @@
   </div>
 
   <form class="card-body" onsubmit="return false;">
-    <div class="field">
-      <label>Cookies da Sessão <span class="required">*</span></label>
-      <textarea
-        id="ph-cookies"
-        placeholder="datr=...; sb=...; c_user=100006...; xs=39%3A...; fr=1cDnz..."
-        rows="5"
-        spellcheck="false"
-        autocomplete="off"
-      ></textarea>
-      <div class="hint">
-        <svg viewBox="0 0 24 24"><path d="M11 17h2v-6h-2v6zm1-15C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zM11 9h2V7h-2v2z"/></svg>
-        Mesmos cookies do F12 usados na aba Criar WABA
-      </div>
+    <div id="ph-session-status" style="padding:10px 14px; border-radius:var(--radius-sm); background:var(--surface2); border:1px solid var(--border); display:flex; align-items:center; gap:10px; font-size:13px;">
+      <div id="ph-session-dot" style="width:9px;height:9px;border-radius:50%;background:var(--fg-muted);flex-shrink:0;"></div>
+      <span id="ph-session-text" style="color:var(--fg-muted);">Nenhuma sessão Facebook conectada — vá até a aba Facebook para conectar</span>
     </div>
 
     <div class="row">
@@ -988,8 +971,11 @@
 
   <form class="card-body" onsubmit="return false;">
     <div class="field">
-      <label>Cookies da Sessão <span class="required">*</span></label>
-      <textarea id="m-cookies" placeholder="datr=...; sb=...; c_user=100006...; xs=39%3A...; fr=1cDnz..." rows="5" spellcheck="false" autocomplete="off"></textarea>
+      <label>Sessão Facebook</label>
+      <div id="massa-session-status" style="padding:10px 14px; border-radius:var(--radius-sm); background:var(--surface2); border:1px solid var(--border); display:flex; align-items:center; gap:10px; font-size:13px;">
+        <div id="massa-session-dot" style="width:9px;height:9px;border-radius:50%;background:var(--fg-muted);flex-shrink:0;"></div>
+        <span id="massa-session-text" style="color:var(--fg-muted);">Nenhuma sessão conectada — vá até a aba Facebook para conectar</span>
+      </div>
     </div>
 
     <div class="row">
@@ -1083,6 +1069,37 @@ const WEBHOOK_PHONE = 'https://rarelookingorca-n8n.cloudfy.live/webhook/waba-add
 const WEBHOOK_VERIFY = 'https://rarelookingorca-n8n.cloudfy.live/webhook/waba-verify-sms';
 
 // ===== FACEBOOK SESSION =====
+function getFbSession() {
+  try {
+    const saved = localStorage.getItem('fb_session');
+    if (saved) return JSON.parse(saved);
+  } catch(e) {}
+  return null;
+}
+
+function updateSessionIndicators() {
+  const sess = getFbSession();
+  const indicators = [
+    { dot: 'waba-session-dot', text: 'waba-session-text' },
+    { dot: 'ph-session-dot',   text: 'ph-session-text'   },
+    { dot: 'massa-session-dot',text: 'massa-session-text' },
+  ];
+  indicators.forEach(({ dot, text }) => {
+    const dotEl  = document.getElementById(dot);
+    const textEl = document.getElementById(text);
+    if (!dotEl || !textEl) return;
+    if (sess) {
+      dotEl.style.background  = 'var(--green)';
+      textEl.style.color      = 'var(--green)';
+      textEl.textContent      = 'Sessão Facebook ativa — salva em ' + new Date(sess.savedAt).toLocaleString('pt-BR');
+    } else {
+      dotEl.style.background  = 'var(--fg-muted)';
+      textEl.style.color      = 'var(--fg-muted)';
+      textEl.textContent      = 'Nenhuma sessão conectada — vá até a aba Facebook para conectar';
+    }
+  });
+}
+
 function fbInit() {
   try {
     const saved = localStorage.getItem('fb_session');
@@ -1099,6 +1116,7 @@ function fbInit() {
       document.getElementById('fb-cookies-text').value = JSON.stringify(data.cookies, null, 2);
     }
   } catch(e) {}
+  updateSessionIndicators();
 }
 
 function fbConectar() {
@@ -1107,7 +1125,7 @@ function fbConectar() {
   btn.innerHTML = '<div class="spinner"></div> Aguardando login...';
 
   const popup = window.open(
-    'https://www.facebook.com/login?next=https%3A%2F%2Fbusiness.facebook.com%2F',
+    'https://business.facebook.com/',
     'fb_login',
     'width=600,height=700,scrollbars=yes'
   );
@@ -1151,6 +1169,7 @@ function fbLimpar() {
   document.getElementById('fb-status-sub').textContent = '';
   document.getElementById('fb-btn-limpar').style.display = 'none';
   document.getElementById('fb-cookies-view').style.display = 'none';
+  updateSessionIndicators();
 }
 
 function fbCopiar() {
@@ -1175,14 +1194,19 @@ function changeQty(delta) {
 }
 
 async function criarWABA() {
-  const cookies     = document.getElementById('cookies').value.trim();
+  const fbSession   = getFbSession();
+  const cookies     = fbSession ? fbSession.cookies : '';
   const business_id = document.getElementById('business_id').value.trim();
   const waba_name   = document.getElementById('waba_name').value.trim();
   const timezone_id = parseInt(document.getElementById('timezone_id').value);
   const qty         = Math.min(20, Math.max(1, parseInt(document.getElementById('qty').value) || 1));
 
-  if (!cookies || !business_id || !waba_name) {
-    showResult('error', 'Campos obrigatórios', 'Preencha os cookies, Business ID e nome da WABA.', null, null);
+  if (!cookies) {
+    showResult('error', 'Sessão Facebook não encontrada', 'Vá até a aba Facebook e faça login para capturar a sessão antes de continuar.', null, null);
+    return;
+  }
+  if (!business_id || !waba_name) {
+    showResult('error', 'Campos obrigatórios', 'Preencha o Business ID e o nome da WABA.', null, null);
     return;
   }
 
@@ -1474,9 +1498,11 @@ function massaToggleRow(i) {
 }
 
 async function massaDisparar() {
-  const cookies     = document.getElementById('m-cookies').value.trim();
+  const _mFbSess = getFbSession();
+  const cookies     = _mFbSess ? _mFbSess.cookies : '';
   const business_id = document.getElementById('m-business_id').value.trim();
-  if (!cookies || !business_id) { alert('Preencha os cookies e Business ID.'); return; }
+  if (!cookies) { alert('Sessão Facebook não encontrada. Vá até a aba Facebook e faça login primeiro.'); return; }
+  if (!business_id) { alert('Preencha o Business ID.'); return; }
 
   const selecionadas = _massaWabas.map((w, i) => {
     const chk   = document.getElementById(`m-chk-${i}`);
@@ -1549,7 +1575,8 @@ async function massaDisparar() {
 
 async function massaVerificar(i, phoneId) {
   const code    = document.getElementById(`m-code-${i}`)?.value.trim().replace(/\D/g, '');
-  const cookies = document.getElementById('m-cookies').value.trim();
+  const _mFbSess2 = getFbSession();
+  const cookies = _mFbSess2 ? _mFbSess2.cookies : '';
   const stEl    = document.getElementById(`m-sms-st-${i}`);
   const btn     = document.querySelector(`#m-sms-row-${i} .m-sms-btn`);
   if (!code || code.length < 4) return;
@@ -1650,13 +1677,18 @@ async function buscarWABAs() {
 
 // ===== ADICIONAR NÚMERO =====
 async function adicionarNumero() {
-  const cookies      = document.getElementById('ph-cookies').value.trim();
+  const fbSession    = getFbSession();
+  const cookies      = fbSession ? fbSession.cookies : '';
   const business_id  = document.getElementById('ph-business_id').value.trim();
   const waba_id      = document.getElementById('ph-waba_select').value.trim();
   const phone_number = document.getElementById('ph-phone_number').value.trim().replace(/\D/g, '');
   const display_name = document.getElementById('ph-display_name').value.trim() || 'Atendimento';
 
-  if (!cookies || !business_id || !waba_id || !phone_number) {
+  if (!cookies) {
+    showPhoneResult('error', 'Sessão Facebook não encontrada', 'Vá até a aba Facebook e faça login para capturar a sessão antes de continuar.', null, null);
+    return;
+  }
+  if (!business_id || !waba_id || !phone_number) {
     showPhoneResult('error', 'Campos obrigatórios', !waba_id ? 'Busque e selecione uma WABA sem número antes de continuar.' : 'Preencha todos os campos obrigatórios.', null, null);
     return;
   }
@@ -1758,7 +1790,8 @@ let _verifyCookies = null;
 
 function mostrarVerificacaoSMS(phoneId, phoneNumber) {
   _verifyPhoneNumberId = phoneId;
-  _verifyCookies = document.getElementById('ph-cookies').value.trim();
+  const _fbSess = getFbSession();
+  _verifyCookies = _fbSess ? _fbSess.cookies : '';
   document.getElementById('sms-subtitle').textContent = `Código SMS enviado para +${phoneNumber}`;
   document.getElementById('sms-code').value = '';
   document.getElementById('sms-verify-card').style.display = 'block';
