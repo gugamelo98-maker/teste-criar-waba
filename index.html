@@ -618,6 +618,7 @@ function showSection(id) {
   document.getElementById('sec-'+id).hidden = false;
   const nav = document.querySelector('.nav-item[data-sec="'+id+'"]');
   if (nav) nav.classList.add('active');
+  if (id === 'campanhas') buscarSenders();
 }
 
 // FB SESSION HELPERS
@@ -1102,13 +1103,20 @@ function updateStepper(active) {
 }
 
 async function buscarSenders() {
-  const body = {action:'listSenders', apiKey:AK, baseUrl:BU, portalUser:PORTAL_USER, portalPass:PORTAL_PASS};
   const container = document.getElementById('senders-list');
+  if (!AK || !BU) {
+    container.innerHTML = '<div class="result-box err">Configure as credenciais Infobip primeiro (botão Configurar no rodapé da barra).</div>';
+    return;
+  }
+  const body = {action:'listSenders', apiKey:AK, baseUrl:BU, portalUser:PORTAL_USER, portalPass:PORTAL_PASS};
   container.innerHTML = '<div class="info">Buscando senders...</div>';
   try {
     const res = await fetch(WH_IB, {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(body)});
     const data = await res.json();
-    const list = Array.isArray(data) ? data : (data.results||data.senders||data.data||[]);
+    // n8n retorna { senders: <body da API Infobip> }
+    // A API Infobip /whatsapp/2/senders retorna { results: [...] }
+    const raw = data.senders || data;
+    const list = Array.isArray(raw) ? raw : (raw.results || raw.data || []);
     if (!list.length) { container.innerHTML='<div class="info">Nenhum sender encontrado.</div>'; return; }
     container.innerHTML = list.map((s,i) => {
       const id = s.id||s.senderId||('s'+i);
