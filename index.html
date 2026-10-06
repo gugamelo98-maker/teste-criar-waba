@@ -695,6 +695,10 @@
     <svg viewBox="0 0 24 24"><path d="M4 6h16v2H4zm0 5h16v2H4zm0 5h16v2H4z"/></svg>
     Em Massa
   </button>
+  <button class="tab-btn" id="tab-facebook" onclick="switchTab('facebook')">
+    <svg viewBox="0 0 24 24"><path d="M12 2.04C6.5 2.04 2 6.53 2 12.06c0 5.02 3.68 9.17 8.44 9.93v-7.03H7.9v-2.9h2.54V9.85c0-2.51 1.49-3.9 3.77-3.9 1.09 0 2.23.19 2.23.19v2.47h-1.26c-1.24 0-1.63.77-1.63 1.56v1.88h2.78l-.45 2.9h-2.33v7.03C18.32 21.23 22 17.08 22 12.06c0-5.53-4.5-10.02-10-10.02z"/></svg>
+    Facebook
+  </button>
 </div>
 
 <!-- ===== TAB CRIAR WABA ===== -->
@@ -1026,11 +1030,136 @@
 
 </div><!-- /panel-massa -->
 
+<!-- ===== TAB FACEBOOK ===== -->
+<div class="tab-panel" id="panel-facebook">
+
+<div class="card">
+  <div class="card-header">
+    <div class="card-header-icon">
+      <svg viewBox="0 0 24 24"><path d="M12 2.04C6.5 2.04 2 6.53 2 12.06c0 5.02 3.68 9.17 8.44 9.93v-7.03H7.9v-2.9h2.54V9.85c0-2.51 1.49-3.9 3.77-3.9 1.09 0 2.23.19 2.23.19v2.47h-1.26c-1.24 0-1.63.77-1.63 1.56v1.88h2.78l-.45 2.9h-2.33v7.03C18.32 21.23 22 17.08 22 12.06c0-5.53-4.5-10.02-10-10.02z"/></svg>
+    </div>
+    <div>
+      <div class="card-title">Sessão Facebook</div>
+      <div class="card-subtitle">Conecte sua conta do Meta Business para automação</div>
+    </div>
+  </div>
+  <div class="card-body">
+    <div id="fb-status-box" style="padding:12px 14px; border-radius:var(--radius-sm); background:var(--surface2); border:1px solid var(--border); display:flex; align-items:center; gap:10px;">
+      <div id="fb-status-dot" style="width:9px;height:9px;border-radius:50%;background:var(--fg-muted);flex-shrink:0;"></div>
+      <div>
+        <div id="fb-status-text" style="font-size:13px;font-weight:600;color:var(--fg-muted);">Nenhuma sessão salva</div>
+        <div id="fb-status-sub" style="font-size:11px;color:var(--fg-muted);margin-top:2px;"></div>
+      </div>
+      <button onclick="fbLimpar()" id="fb-btn-limpar" style="margin-left:auto;display:none;" class="btn btn-ghost" style="width:auto;padding:6px 12px;font-size:12px;">Desconectar</button>
+    </div>
+
+    <div class="hint">
+      <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg>
+      Ao clicar em "Conectar Facebook", uma janela abrirá para você fazer login. Seus cookies de sessão serão salvos localmente para automatizar o fluxo de conexão de números.
+    </div>
+
+    <button class="btn" onclick="fbConectar()" id="fb-btn-conectar">
+      <svg viewBox="0 0 24 24"><path d="M12 2.04C6.5 2.04 2 6.53 2 12.06c0 5.02 3.68 9.17 8.44 9.93v-7.03H7.9v-2.9h2.54V9.85c0-2.51 1.49-3.9 3.77-3.9 1.09 0 2.23.19 2.23.19v2.47h-1.26c-1.24 0-1.63.77-1.56v1.88h2.78l-.45 2.9h-2.33v7.03C18.32 21.23 22 17.08 22 12.06c0-5.53-4.5-10.02-10-10.02z"/></svg>
+      Conectar Facebook
+    </button>
+
+    <div id="fb-cookies-view" style="display:none;">
+      <label>Cookies capturados (localStorage)</label>
+      <textarea id="fb-cookies-text" readonly style="min-height:120px;font-size:11px;"></textarea>
+      <button class="btn btn-ghost" onclick="fbCopiar()" style="margin-top:4px;">
+        <svg viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
+        Copiar cookies
+      </button>
+    </div>
+  </div>
+</div>
+
+</div><!-- /panel-facebook -->
+
 <script>
 const WEBHOOK = 'https://rarelookingorca-n8n.cloudfy.live/webhook/waba-create-meta';
 const WEBHOOK_NOCOOKIE = 'https://rarelookingorca-n8n.cloudfy.live/webhook/waba-test-nocookie';
 const WEBHOOK_PHONE = 'https://rarelookingorca-n8n.cloudfy.live/webhook/waba-add-phone';
 const WEBHOOK_VERIFY = 'https://rarelookingorca-n8n.cloudfy.live/webhook/waba-verify-sms';
+
+// ===== FACEBOOK SESSION =====
+function fbInit() {
+  try {
+    const saved = localStorage.getItem('fb_session');
+    if (saved) {
+      const data = JSON.parse(saved);
+      document.getElementById('fb-status-dot').style.background = 'var(--green)';
+      document.getElementById('fb-status-text').style.color = 'var(--green)';
+      document.getElementById('fb-status-text').textContent = 'Sessão ativa';
+      document.getElementById('fb-status-sub').textContent = 'Salva em: ' + new Date(data.savedAt).toLocaleString('pt-BR');
+      document.getElementById('fb-btn-limpar').style.display = 'block';
+      document.getElementById('fb-cookies-view').style.display = 'flex';
+      document.getElementById('fb-cookies-view').style.flexDirection = 'column';
+      document.getElementById('fb-cookies-view').style.gap = '6px';
+      document.getElementById('fb-cookies-text').value = JSON.stringify(data.cookies, null, 2);
+    }
+  } catch(e) {}
+}
+
+function fbConectar() {
+  const btn = document.getElementById('fb-btn-conectar');
+  btn.disabled = true;
+  btn.innerHTML = '<div class="spinner"></div> Aguardando login...';
+
+  const popup = window.open(
+    'https://www.facebook.com/login?next=https%3A%2F%2Fbusiness.facebook.com%2F',
+    'fb_login',
+    'width=600,height=700,scrollbars=yes'
+  );
+
+  const timer = setInterval(() => {
+    try {
+      if (popup.closed) {
+        clearInterval(timer);
+        btn.disabled = false;
+        btn.innerHTML = '<svg viewBox="0 0 24 24"><path d="M12 2.04C6.5 2.04 2 6.53 2 12.06c0 5.02 3.68 9.17 8.44 9.93v-7.03H7.9v-2.9h2.54V9.85c0-2.51 1.49-3.9 3.77-3.9 1.09 0 2.23.19 2.23.19v2.47h-1.26c-1.24 0-1.63.77-1.56v1.88h2.78l-.45 2.9h-2.33v7.03C18.32 21.23 22 17.08 22 12.06c0-5.53-4.5-10.02-10-10.02z"/></svg> Conectar Facebook';
+        return;
+      }
+      // Tenta ler cookies quando popup estiver em facebook.com
+      const url = popup.location.href;
+      if (url.includes('business.facebook.com') || url.includes('facebook.com/home')) {
+        clearInterval(timer);
+        // Captura cookies disponíveis do domínio (limitado por CORS)
+        const cookieStr = popup.document.cookie;
+        const sessionData = {
+          savedAt: Date.now(),
+          cookies: cookieStr,
+          url: url
+        };
+        localStorage.setItem('fb_session', JSON.stringify(sessionData));
+        popup.close();
+        fbInit();
+        btn.disabled = false;
+        btn.innerHTML = '<svg viewBox="0 0 24 24"><path d="M12 2.04C6.5 2.04 2 6.53 2 12.06c0 5.02 3.68 9.17 8.44 9.93v-7.03H7.9v-2.9h2.54V9.85c0-2.51 1.49-3.9 3.77-3.9 1.09 0 2.23.19 2.23.19v2.47h-1.26c-1.24 0-1.63.77-1.56v1.88h2.78l-.45 2.9h-2.33v7.03C18.32 21.23 22 17.08 22 12.06c0-5.53-4.5-10.02-10-10.02z"/></svg> Conectar Facebook';
+      }
+    } catch(e) {
+      // Cross-origin — aguarda popup retornar ao domínio correto
+    }
+  }, 1000);
+}
+
+function fbLimpar() {
+  localStorage.removeItem('fb_session');
+  document.getElementById('fb-status-dot').style.background = 'var(--fg-muted)';
+  document.getElementById('fb-status-text').style.color = 'var(--fg-muted)';
+  document.getElementById('fb-status-text').textContent = 'Nenhuma sessão salva';
+  document.getElementById('fb-status-sub').textContent = '';
+  document.getElementById('fb-btn-limpar').style.display = 'none';
+  document.getElementById('fb-cookies-view').style.display = 'none';
+}
+
+function fbCopiar() {
+  const text = document.getElementById('fb-cookies-text').value;
+  navigator.clipboard.writeText(text).catch(() => {});
+}
+
+document.addEventListener('DOMContentLoaded', fbInit);
+// ===== FIM FACEBOOK SESSION =====
 
 function switchTab(name) {
   document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
