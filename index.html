@@ -623,6 +623,47 @@
     word-break: break-all;
   }
 
+  /* Em Massa */
+  .waba-row {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 10px 12px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .waba-row.selected { border-color: var(--yellow); background: rgba(232,184,75,0.06); }
+  .waba-row input[type="checkbox"] { width:16px; height:16px; accent-color: var(--yellow); cursor:pointer; flex-shrink:0; }
+  .waba-row-info { flex:1; min-width:0; }
+  .waba-row-name { font-size:13px; font-weight:600; color:var(--fg); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .waba-row-id { font-size:11px; font-family:'JetBrains Mono',monospace; color:var(--fg-muted); }
+  .waba-row-phone { width:160px; flex-shrink:0; }
+  .waba-row-phone input { padding:7px 10px; font-size:13px; }
+
+  .m-result-item {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 12px 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .m-result-item.ok { border-color: rgba(76,175,142,0.4); }
+  .m-result-item.err { border-color: rgba(224,92,110,0.4); }
+  .m-result-top { display:flex; align-items:center; gap:10px; }
+  .m-result-name { flex:1; font-weight:600; font-size:13px; color:var(--fg); }
+  .m-result-phone { font-size:12px; color:var(--fg-muted); font-family:'JetBrains Mono',monospace; }
+  .m-sms-row { display:flex; align-items:center; gap:8px; }
+  .m-sms-row input { flex:1; padding:7px 10px; font-size:16px; font-family:'JetBrains Mono',monospace; letter-spacing:4px; text-align:center; font-weight:700; }
+  .m-sms-btn { background:var(--accent); border:none; border-radius:var(--radius-sm); color:white; cursor:pointer; font-family:inherit; font-size:12px; font-weight:600; padding:8px 14px; white-space:nowrap; transition:background 0.15s; }
+  .m-sms-btn:hover { background:var(--accent-hover); }
+  .m-sms-btn:disabled { opacity:0.5; cursor:not-allowed; }
+  .m-sms-status { font-size:12px; padding:4px 10px; border-radius:20px; font-weight:600; white-space:nowrap; }
+  .m-sms-ok { background:var(--green-dim); color:var(--green); }
+  .m-sms-err { background:var(--red-dim); color:var(--red); }
+
   @media (max-width: 440px) {
     body { padding: 20px 12px; }
     .card-body { padding: 18px; }
@@ -648,7 +689,11 @@
   </button>
   <button class="tab-btn" id="tab-phone" onclick="switchTab('phone')">
     <svg viewBox="0 0 24 24"><path d="M6.62 10.79c1.44 2.83 3.76 5.14 6.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z"/></svg>
-    Adicionar Número
+    Adicionar Número (Unitário)
+  </button>
+  <button class="tab-btn" id="tab-massa" onclick="switchTab('massa')">
+    <svg viewBox="0 0 24 24"><path d="M4 6h16v2H4zm0 5h16v2H4zm0 5h16v2H4z"/></svg>
+    Em Massa
   </button>
 </div>
 
@@ -918,6 +963,69 @@
 
 </div><!-- /panel-phone -->
 
+<!-- ===== TAB EM MASSA ===== -->
+<div class="tab-panel" id="panel-massa">
+
+<div class="webhook-pill">
+  <div class="webhook-pill-dot"></div>
+  <span class="webhook-url">https://rarelookingorca-n8n.cloudfy.live/webhook/waba-add-phone</span>
+</div>
+
+<div class="card">
+  <div class="card-header">
+    <div class="card-header-icon" style="background:rgba(232,184,75,0.15)">
+      <svg viewBox="0 0 24 24" style="fill:var(--yellow)"><path d="M4 6h16v2H4zm0 5h16v2H4zm0 5h16v2H4z"/></svg>
+    </div>
+    <div>
+      <div class="card-title">Adicionar Números em Massa</div>
+      <div class="card-subtitle">Selecione WABAs e atribua um número pra cada</div>
+    </div>
+  </div>
+
+  <form class="card-body" onsubmit="return false;">
+    <div class="field">
+      <label>Cookies da Sessão <span class="required">*</span></label>
+      <textarea id="m-cookies" placeholder="datr=...; sb=...; c_user=100006...; xs=39%3A...; fr=1cDnz..." rows="5" spellcheck="false" autocomplete="off"></textarea>
+    </div>
+
+    <div class="row">
+      <div class="field">
+        <label>Business ID <span class="required">*</span></label>
+        <input id="m-business_id" type="text" placeholder="803068770186829" autocomplete="off" spellcheck="false">
+      </div>
+      <div class="field">
+        <label>Graph API Token <span class="required">*</span></label>
+        <input id="m-graph-token" type="text" placeholder="EAAhCDcA..." autocomplete="off" spellcheck="false" style="font-size:11px;">
+      </div>
+    </div>
+
+    <div class="field">
+      <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:6px;">
+        <label style="margin:0">WABAs disponíveis</label>
+        <button type="button" id="m-fetch-btn" onclick="massaBuscarWABAs()" style="background:none;border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--fg-muted);cursor:pointer;font-family:inherit;font-size:11px;font-weight:600;padding:4px 10px;display:flex;align-items:center;gap:5px;transition:all 0.15s;" onmouseover="this.style.borderColor='var(--yellow)';this.style.color='var(--yellow)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--fg-muted)'">
+          <svg viewBox="0 0 24 24" style="width:12px;height:12px;fill:currentColor"><path d="M17.65 6.35C16.2 4.9 14.21 4 12 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08c-.82 2.33-3.04 4-5.65 4-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"/></svg>
+          Buscar WABAs
+        </button>
+      </div>
+      <div id="m-waba-status" style="font-size:12px;color:var(--fg-muted);padding:10px 12px;background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-sm);display:flex;align-items:center;gap:8px;">
+        <svg viewBox="0 0 24 24" style="width:14px;height:14px;fill:var(--fg-muted);flex-shrink:0"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg>
+        Preencha os campos acima e clique em "Buscar WABAs"
+      </div>
+      <div id="m-waba-list" style="display:none; flex-direction:column; gap:8px; margin-top:8px;"></div>
+    </div>
+
+    <button class="btn" id="m-submit-btn" onclick="massaDisparar()" disabled style="background:var(--yellow);color:#1a1208;opacity:0.5">
+      <svg viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
+      Disparar Todos
+    </button>
+  </form>
+</div>
+
+<!-- Massa result list -->
+<div id="m-result-list" style="display:none; flex-direction:column; gap:8px; width:100%; max-width:640px;"></div>
+
+</div><!-- /panel-massa -->
+
 <script>
 const WEBHOOK = 'https://rarelookingorca-n8n.cloudfy.live/webhook/waba-create-meta';
 const WEBHOOK_NOCOOKIE = 'https://rarelookingorca-n8n.cloudfy.live/webhook/waba-test-nocookie';
@@ -1155,6 +1263,199 @@ function updateMultiItem(i, name, status, wabaId, raw) {
     ${idSpan}
     ${badge}
   `;
+}
+
+// ===== EM MASSA =====
+let _massaWabas = [];
+
+async function massaBuscarWABAs() {
+  const business_id = document.getElementById('m-business_id').value.trim();
+  const token       = document.getElementById('m-graph-token').value.trim();
+  const statusEl    = document.getElementById('m-waba-status');
+  const listEl      = document.getElementById('m-waba-list');
+  const btn         = document.getElementById('m-fetch-btn');
+
+  if (!business_id || !token) {
+    statusEl.innerHTML = '<svg viewBox="0 0 24 24" style="width:14px;height:14px;fill:var(--red);flex-shrink:0"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg> Preencha o Business ID e o Token primeiro.';
+    return;
+  }
+
+  btn.disabled = true;
+  btn.innerHTML = '<div class="spinner" style="width:11px;height:11px;border-width:1.5px;border-color:rgba(139,144,184,0.3);border-top-color:var(--fg-muted)"></div> Buscando...';
+  statusEl.innerHTML = '<div class="spinner" style="width:12px;height:12px;border-width:1.5px;border-color:rgba(139,144,184,0.3);border-top-color:var(--fg-muted)"></div> Buscando WABAs...';
+  statusEl.style.display = 'flex';
+  listEl.style.display = 'none';
+  listEl.innerHTML = '';
+  document.getElementById('m-submit-btn').disabled = true;
+  document.getElementById('m-submit-btn').style.opacity = '0.5';
+
+  try {
+    const url = `https://graph.facebook.com/v21.0/${business_id}/owned_whatsapp_business_accounts?fields=id,name,phone_numbers{display_phone_number}&limit=100&access_token=${token}`;
+    const resp = await fetch(url);
+    const json = await resp.json();
+
+    if (json.error) {
+      statusEl.innerHTML = `<svg viewBox="0 0 24 24" style="width:14px;height:14px;fill:var(--red);flex-shrink:0"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg> ${json.error.message}`;
+      return;
+    }
+
+    const all = json.data || [];
+    _massaWabas = all.filter(w => !w.phone_numbers || !w.phone_numbers.data || w.phone_numbers.data.length === 0);
+
+    if (_massaWabas.length === 0) {
+      statusEl.innerHTML = `<svg viewBox="0 0 24 24" style="width:14px;height:14px;fill:var(--yellow);flex-shrink:0"><path d="M1 21h22L12 2 1 21zm12-3h-2v-2h2v2zm0-4h-2v-4h2v4z"/></svg> Todas as ${all.length} WABAs já têm número.`;
+      return;
+    }
+
+    statusEl.innerHTML = `<svg viewBox="0 0 24 24" style="width:14px;height:14px;fill:var(--green);flex-shrink:0"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg> ${_massaWabas.length} WABA${_massaWabas.length > 1 ? 's' : ''} sem número. Selecione e preencha os telefones.`;
+
+    listEl.innerHTML = _massaWabas.map((w, i) => `
+      <div class="waba-row" id="m-row-${i}">
+        <input type="checkbox" id="m-chk-${i}" onchange="massaToggleRow(${i})">
+        <div class="waba-row-info">
+          <div class="waba-row-name">${w.name || 'Sem nome'}</div>
+          <div class="waba-row-id">${w.id}</div>
+        </div>
+        <div class="waba-row-phone">
+          <input type="text" id="m-phone-${i}" placeholder="5548999..." disabled style="opacity:0.4" spellcheck="false" autocomplete="off">
+        </div>
+      </div>
+    `).join('');
+    listEl.style.display = 'flex';
+
+  } catch(err) {
+    statusEl.innerHTML = `<svg viewBox="0 0 24 24" style="width:14px;height:14px;fill:var(--red);flex-shrink:0"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg> Erro: ${err.message}`;
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = '<svg viewBox="0 0 24 24" style="width:12px;height:12px;fill:currentColor"><path d="M17.65 6.35C16.2 4.9 14.21 4 12 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08c-.82 2.33-3.04 4-5.65 4-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"/></svg> Buscar WABAs';
+  }
+}
+
+function massaToggleRow(i) {
+  const chk  = document.getElementById(`m-chk-${i}`);
+  const row  = document.getElementById(`m-row-${i}`);
+  const inp  = document.getElementById(`m-phone-${i}`);
+  inp.disabled = !chk.checked;
+  inp.style.opacity = chk.checked ? '1' : '0.4';
+  row.classList.toggle('selected', chk.checked);
+  // habilita botão se ao menos 1 selecionado
+  const anyChecked = _massaWabas.some((_, j) => document.getElementById(`m-chk-${j}`)?.checked);
+  document.getElementById('m-submit-btn').disabled = !anyChecked;
+  document.getElementById('m-submit-btn').style.opacity = anyChecked ? '1' : '0.5';
+}
+
+async function massaDisparar() {
+  const cookies     = document.getElementById('m-cookies').value.trim();
+  const business_id = document.getElementById('m-business_id').value.trim();
+  if (!cookies || !business_id) { alert('Preencha os cookies e Business ID.'); return; }
+
+  const selecionadas = _massaWabas.map((w, i) => {
+    const chk   = document.getElementById(`m-chk-${i}`);
+    const phone = document.getElementById(`m-phone-${i}`)?.value.trim().replace(/\D/g, '');
+    if (chk?.checked && phone) return { waba: w, phone, index: i };
+    return null;
+  }).filter(Boolean);
+
+  if (selecionadas.length === 0) { alert('Selecione ao menos uma WABA e preencha o número.'); return; }
+
+  const btn = document.getElementById('m-submit-btn');
+  btn.disabled = true;
+  btn.innerHTML = `<div class="spinner" style="border-color:rgba(26,18,8,0.3);border-top-color:#1a1208"></div> Disparando ${selecionadas.length}...`;
+
+  const resultList = document.getElementById('m-result-list');
+  resultList.style.display = 'flex';
+  resultList.innerHTML = selecionadas.map(({ waba, phone }, i) => `
+    <div class="m-result-item" id="m-res-${i}">
+      <div class="m-result-top">
+        <div class="m-result-info" style="flex:1;min-width:0">
+          <div class="m-result-name">${waba.name || 'Sem nome'}</div>
+          <div class="m-result-phone">${phone}</div>
+        </div>
+        <span class="multi-item-badge badge-wait" id="m-badge-${i}">aguardando…</span>
+      </div>
+    </div>
+  `).join('');
+
+  const promises = selecionadas.map(({ waba, phone }, i) =>
+    fetch(WEBHOOK_PHONE, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ cookies, business_id, waba_id: waba.id, phone_number: phone, display_name: 'Atendimento' }),
+    })
+    .then(r => r.json())
+    .then(data => {
+      const phoneId = data?.phone_number_id;
+      const ok = data?.success && phoneId;
+      const badge = document.getElementById(`m-badge-${i}`);
+      const item  = document.getElementById(`m-res-${i}`);
+      if (ok) {
+        badge.className = 'multi-item-badge badge-ok';
+        badge.textContent = '✓ SMS enviado';
+        item.classList.add('ok');
+        // Adiciona campo de código SMS
+        item.insertAdjacentHTML('beforeend', `
+          <div class="m-sms-row" id="m-sms-row-${i}">
+            <input type="text" id="m-code-${i}" placeholder="código SMS" maxlength="8" style="letter-spacing:4px;font-weight:700;text-align:center;" autocomplete="one-time-code">
+            <button class="m-sms-btn" onclick="massaVerificar(${i}, '${phoneId}')">Verificar</button>
+            <span class="m-sms-status" id="m-sms-st-${i}" style="display:none"></span>
+          </div>
+        `);
+      } else {
+        badge.className = 'multi-item-badge badge-err';
+        badge.textContent = '✗ erro';
+        item.classList.add('err');
+        item.insertAdjacentHTML('beforeend', `<div style="font-size:12px;color:var(--red)">${data?.error || data?.message || 'Erro desconhecido'}</div>`);
+      }
+    })
+    .catch(err => {
+      const badge = document.getElementById(`m-badge-${i}`);
+      if (badge) { badge.className = 'multi-item-badge badge-err'; badge.textContent = '✗ falha'; }
+    })
+  );
+
+  await Promise.all(promises);
+  btn.disabled = false;
+  btn.innerHTML = '<svg viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg> Disparar Todos';
+}
+
+async function massaVerificar(i, phoneId) {
+  const code    = document.getElementById(`m-code-${i}`)?.value.trim().replace(/\D/g, '');
+  const cookies = document.getElementById('m-cookies').value.trim();
+  const stEl    = document.getElementById(`m-sms-st-${i}`);
+  const btn     = document.querySelector(`#m-sms-row-${i} .m-sms-btn`);
+  if (!code || code.length < 4) return;
+
+  btn.disabled = true;
+  btn.textContent = '...';
+  stEl.style.display = 'none';
+
+  try {
+    const resp = await fetch(WEBHOOK_VERIFY, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ cookies, phone_number_id: phoneId, code }),
+    });
+    const data = await resp.json();
+    if (data?.success) {
+      stEl.className = 'm-sms-status m-sms-ok';
+      stEl.textContent = '✓ Verificado!';
+      stEl.style.display = 'inline-block';
+      btn.style.display = 'none';
+      document.getElementById(`m-code-${i}`).disabled = true;
+    } else {
+      stEl.className = 'm-sms-status m-sms-err';
+      stEl.textContent = '✗ Inválido';
+      stEl.style.display = 'inline-block';
+      btn.disabled = false;
+      btn.textContent = 'Verificar';
+    }
+  } catch {
+    stEl.className = 'm-sms-status m-sms-err';
+    stEl.textContent = '✗ Erro';
+    stEl.style.display = 'inline-block';
+    btn.disabled = false;
+    btn.textContent = 'Verificar';
+  }
 }
 
 // Atalho: Enter no campo waba_name dispara o form
