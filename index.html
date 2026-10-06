@@ -852,6 +852,47 @@
   </form>
 </div>
 
+<!-- SMS Verify Block -->
+<div class="card" id="sms-verify-card" style="display:none; border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent-dim);">
+  <div class="card-header">
+    <div class="card-header-icon" style="background:var(--accent-dim)">
+      <svg viewBox="0 0 24 24" style="fill:var(--accent)"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H6l-2 2V4h16v12z"/></svg>
+    </div>
+    <div>
+      <div class="card-title">Verificar código SMS</div>
+      <div class="card-subtitle" id="sms-subtitle">Digite o código recebido no número</div>
+    </div>
+  </div>
+  <form class="card-body" onsubmit="return false;" style="gap:12px">
+    <div class="field">
+      <label>Código SMS <span class="required">*</span></label>
+      <input id="sms-code" type="text" placeholder="123456" maxlength="8" autocomplete="one-time-code" spellcheck="false" style="font-size:22px;font-family:'JetBrains Mono',monospace;letter-spacing:6px;text-align:center;font-weight:700;">
+    </div>
+    <button class="btn" id="verifyBtn" onclick="verificarSMS()" style="background:var(--accent)">
+      <svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z"/></svg>
+      Verificar e Ativar Número
+    </button>
+  </form>
+</div>
+
+<!-- SMS Verify Result -->
+<div class="result" id="sms-result" style="display:none">
+  <div class="result-header" id="sms-result-header">
+    <svg id="sms-result-icon" viewBox="0 0 24 24"></svg>
+    <span id="sms-result-title"></span>
+  </div>
+  <div class="result-body">
+    <div id="sms-result-message" style="font-size:13px;color:var(--fg-muted);line-height:1.6;"></div>
+    <div style="display:flex; justify-content:space-between; align-items:center;">
+      <button class="raw-toggle" id="sms-raw-toggle" onclick="toggleSmsRaw()">
+        <svg viewBox="0 0 24 24"><path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z"/></svg>
+        Ver resposta completa
+      </button>
+    </div>
+    <pre class="raw-json" id="sms-raw-json"></pre>
+  </div>
+</div>
+
 <!-- Phone Result -->
 <div class="result" id="ph-result">
   <div class="result-header" id="ph-result-header">
@@ -881,6 +922,7 @@
 const WEBHOOK = 'https://rarelookingorca-n8n.cloudfy.live/webhook/waba-create-meta';
 const WEBHOOK_NOCOOKIE = 'https://rarelookingorca-n8n.cloudfy.live/webhook/waba-test-nocookie';
 const WEBHOOK_PHONE = 'https://rarelookingorca-n8n.cloudfy.live/webhook/waba-add-phone';
+const WEBHOOK_VERIFY = 'https://rarelookingorca-n8n.cloudfy.live/webhook/waba-verify-sms';
 
 function switchTab(name) {
   document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
@@ -1211,7 +1253,8 @@ async function adicionarNumero() {
 
     const phoneId = data?.phone_number_id;
     if (data?.success && phoneId) {
-      showPhoneResult('success', 'Número adicionado! SMS enviado.', `O número foi criado na WABA e um SMS de verificação foi disparado para ${phone_number}. Aguarde o código.`, phoneId, data);
+      showPhoneResult('success', 'Número adicionado! SMS enviado.', `O número foi criado na WABA e um SMS de verificação foi disparado para ${phone_number}. Digite o código abaixo.`, phoneId, data);
+      mostrarVerificacaoSMS(phoneId, phone_number);
     } else if (data?.error || data?.errors) {
       showPhoneResult('error', 'Erro ao adicionar número', data?.error || JSON.stringify(data?.errors), null, data);
     } else {
@@ -1278,6 +1321,93 @@ function togglePhoneRaw() {
   const showing = raw.classList.toggle('show');
   toggle.classList.toggle('open', showing);
 }
+
+// ===== VERIFICAR SMS =====
+let _verifyPhoneNumberId = null;
+let _verifyCookies = null;
+
+function mostrarVerificacaoSMS(phoneId, phoneNumber) {
+  _verifyPhoneNumberId = phoneId;
+  _verifyCookies = document.getElementById('ph-cookies').value.trim();
+  document.getElementById('sms-subtitle').textContent = `Código SMS enviado para +${phoneNumber}`;
+  document.getElementById('sms-code').value = '';
+  document.getElementById('sms-verify-card').style.display = 'block';
+  document.getElementById('sms-result').style.display = 'none';
+  document.getElementById('sms-verify-card').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  setTimeout(() => document.getElementById('sms-code').focus(), 400);
+}
+
+async function verificarSMS() {
+  const code = document.getElementById('sms-code').value.trim().replace(/\D/g, '');
+  if (!code || code.length < 4) {
+    document.getElementById('sms-code').focus();
+    return;
+  }
+  if (!_verifyPhoneNumberId || !_verifyCookies) {
+    showSmsResult('error', 'Erro', 'Dados de sessão perdidos. Adicione o número novamente.', null);
+    return;
+  }
+
+  const btn = document.getElementById('verifyBtn');
+  btn.disabled = true;
+  btn.innerHTML = '<div class="spinner"></div> Verificando...';
+
+  try {
+    const resp = await fetch(WEBHOOK_VERIFY, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ cookies: _verifyCookies, phone_number_id: _verifyPhoneNumberId, code }),
+    });
+    const text = await resp.text();
+    let data;
+    try { data = JSON.parse(text); } catch { data = { raw: text }; }
+
+    if (data?.success) {
+      showSmsResult('success', 'Número verificado e ativo! ✓', 'O número foi verificado com sucesso e já está ativo na WABA.', data);
+      document.getElementById('sms-verify-card').style.display = 'none';
+    } else {
+      showSmsResult('error', 'Código inválido ou expirado', data?.error || data?.message || 'Verifique o código e tente novamente.', data);
+    }
+  } catch(err) {
+    showSmsResult('error', 'Falha na requisição', err.message, null);
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = '<svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z"/></svg> Verificar e Ativar Número';
+  }
+}
+
+function showSmsResult(type, title, message, raw) {
+  const resultEl  = document.getElementById('sms-result');
+  const iconEl    = document.getElementById('sms-result-icon');
+  const titleEl   = document.getElementById('sms-result-title');
+  const msgEl     = document.getElementById('sms-result-message');
+  const rawEl     = document.getElementById('sms-raw-json');
+  const rawToggle = document.getElementById('sms-raw-toggle');
+  const icons = {
+    success: '<path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>',
+    error:   '<path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/>',
+  };
+  resultEl.className = 'result show ' + type;
+  resultEl.style.display = 'block';
+  iconEl.innerHTML = icons[type] || icons.error;
+  titleEl.textContent = title;
+  msgEl.textContent = message;
+  if (raw) { rawEl.textContent = JSON.stringify(raw, null, 2); rawToggle.style.display = 'flex'; }
+  else { rawToggle.style.display = 'none'; }
+  resultEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
+function toggleSmsRaw() {
+  const raw = document.getElementById('sms-raw-json');
+  const toggle = document.getElementById('sms-raw-toggle');
+  const showing = raw.classList.toggle('show');
+  toggle.classList.toggle('open', showing);
+}
+
+// Enter no campo de código dispara verificação
+document.getElementById('sms-code').addEventListener('keydown', e => {
+  if (e.key === 'Enter') verificarSMS();
+});
 
 function copyPhoneId() {
   const val = document.getElementById('ph-id-value').textContent;
