@@ -446,10 +446,125 @@
     font-size: 11px;
   }
 
+  .qty-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .qty-btn {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    color: var(--fg);
+    cursor: pointer;
+    font-size: 18px;
+    font-weight: 500;
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    transition: background 0.15s, border-color 0.15s;
+    line-height: 1;
+    padding-bottom: 1px;
+  }
+  .qty-btn:hover { background: var(--border); border-color: var(--border-hover); }
+
+  #qty {
+    width: 52px;
+    text-align: center;
+    font-variant-numeric: tabular-nums;
+    font-weight: 600;
+    padding: 8px 4px;
+    flex-shrink: 0;
+    -moz-appearance: textfield;
+  }
+  #qty::-webkit-inner-spin-button,
+  #qty::-webkit-outer-spin-button { -webkit-appearance: none; }
+
+  .qty-hint {
+    font-size: 11px;
+    color: var(--fg-muted);
+    flex: 1;
+    min-width: 0;
+    line-height: 1.4;
+  }
+
+  /* Multi result list */
+  .multi-result {
+    width: 100%;
+    max-width: 640px;
+    display: none;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .multi-result.show { display: flex; }
+
+  .multi-item {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 12px 16px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 13px;
+  }
+  .multi-item-num {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--fg-muted);
+    width: 20px;
+    flex-shrink: 0;
+    text-align: center;
+  }
+  .multi-item-name {
+    flex: 1;
+    font-weight: 500;
+    color: var(--fg);
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .multi-item-id {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    color: var(--green);
+    cursor: pointer;
+  }
+  .multi-item-id:hover { text-decoration: underline; }
+  .multi-item-badge {
+    font-size: 11px;
+    font-weight: 600;
+    padding: 2px 8px;
+    border-radius: 20px;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+  .badge-ok { background: var(--green-dim); color: var(--green); }
+  .badge-err { background: var(--red-dim); color: var(--red); }
+  .badge-wait { background: var(--yellow-dim); color: var(--yellow); }
+
+  .multi-header {
+    width: 100%;
+    max-width: 640px;
+    display: none;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 12px;
+    color: var(--fg-muted);
+    padding: 0 2px;
+  }
+  .multi-header.show { display: flex; }
+
   @media (max-width: 440px) {
     body { padding: 20px 12px; }
     .card-body { padding: 18px; }
     .row { flex-direction: column; }
+    .qty-hint { display: none; }
   }
 </style>
 </head>
@@ -533,6 +648,16 @@
       >
     </div>
 
+    <div class="field">
+      <label>Quantidade</label>
+      <div class="qty-row">
+        <button type="button" class="qty-btn" onclick="changeQty(-1)">−</button>
+        <input id="qty" type="number" min="1" max="20" value="1" readonly>
+        <button type="button" class="qty-btn" onclick="changeQty(1)">+</button>
+        <span class="qty-hint">WABAs serão criadas em paralelo com nomes: Nome, Nome 2, Nome 3…</span>
+      </div>
+    </div>
+
     <button class="btn" id="submitBtn" onclick="criarWABA()">
       <svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z"/></svg>
       Criar WABA
@@ -544,7 +669,13 @@
   </form>
 </div>
 
-<!-- Result -->
+<!-- Multi result -->
+<div class="multi-header" id="multi-header">
+  <span id="multi-summary"></span>
+</div>
+<div class="multi-result" id="multi-result"></div>
+
+<!-- Single Result -->
 <div class="result" id="result">
   <div class="result-header" id="result-header">
     <svg id="result-icon" viewBox="0 0 24 24"></svg>
@@ -571,11 +702,18 @@
 const WEBHOOK = 'https://rarelookingorca-n8n.cloudfy.live/webhook/waba-create-meta';
 const WEBHOOK_NOCOOKIE = 'https://rarelookingorca-n8n.cloudfy.live/webhook/waba-test-nocookie';
 
+function changeQty(delta) {
+  const input = document.getElementById('qty');
+  const val = Math.min(20, Math.max(1, parseInt(input.value) + delta));
+  input.value = val;
+}
+
 async function criarWABA() {
   const cookies     = document.getElementById('cookies').value.trim();
   const business_id = document.getElementById('business_id').value.trim();
   const waba_name   = document.getElementById('waba_name').value.trim();
   const timezone_id = parseInt(document.getElementById('timezone_id').value);
+  const qty         = Math.min(20, Math.max(1, parseInt(document.getElementById('qty').value) || 1));
 
   if (!cookies || !business_id || !waba_name) {
     showResult('error', 'Campos obrigatórios', 'Preencha os cookies, Business ID e nome da WABA.', null, null);
@@ -584,40 +722,71 @@ async function criarWABA() {
 
   const btn = document.getElementById('submitBtn');
   btn.disabled = true;
-  btn.innerHTML = '<div class="spinner"></div> Criando WABA...';
+  btn.innerHTML = `<div class="spinner"></div> Criando ${qty} WABA${qty > 1 ? 's' : ''}...`;
 
   hideResult();
+  hideMultiResult();
 
-  try {
-    const resp = await fetch(WEBHOOK, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ cookies, business_id, waba_name, timezone_id }),
+  if (qty === 1) {
+    // fluxo simples
+    try {
+      const resp = await fetch(WEBHOOK, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ cookies, business_id, waba_name, timezone_id }),
+      });
+      const text = await resp.text();
+      let data;
+      try { data = JSON.parse(text); } catch { data = { raw: text }; }
+      if (!resp.ok) {
+        showResult('error', `Erro HTTP ${resp.status}`, data?.message || data?.error || 'O webhook retornou um erro.', null, data);
+        return;
+      }
+      const wabaId = data?.waba_id || data?.id || data?.data?.waba_id;
+      if (wabaId) {
+        showResult('success', 'WABA criada com sucesso!', 'A conta foi criada e está disponível no WhatsApp Manager.', wabaId, data);
+      } else if (data?.error || data?.errors) {
+        showResult('error', 'Erro ao criar WABA', data?.error || JSON.stringify(data?.errors), null, data);
+      } else {
+        showResult('warning', 'Resposta recebida', 'Webhook respondeu mas WABA ID não encontrado. Veja a resposta completa.', null, data);
+      }
+    } catch (err) {
+      showResult('error', 'Falha na requisição', err.message || 'Não foi possível conectar ao webhook.', null, null);
+    } finally {
+      btn.disabled = false;
+      btn.innerHTML = '<svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z"/></svg> Criar WABA';
+    }
+  } else {
+    // fluxo múltiplo — dispara todas em paralelo
+    const names = Array.from({ length: qty }, (_, i) => i === 0 ? waba_name : `${waba_name} ${i + 1}`);
+    showMultiPending(names);
+
+    const promises = names.map((name, i) =>
+      fetch(WEBHOOK, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ cookies, business_id, waba_name: name, timezone_id }),
+      })
+      .then(r => r.text())
+      .then(text => {
+        let data;
+        try { data = JSON.parse(text); } catch { data = { raw: text }; }
+        const wabaId = data?.waba_id || data?.id || data?.data?.waba_id;
+        updateMultiItem(i, name, wabaId ? 'ok' : (data?.error || data?.errors ? 'err' : 'warn'), wabaId, data);
+        return { ok: !!wabaId, wabaId };
+      })
+      .catch(err => {
+        updateMultiItem(i, name, 'err', null, { error: err.message });
+        return { ok: false };
+      })
+    );
+
+    Promise.all(promises).then(results => {
+      const ok = results.filter(r => r.ok).length;
+      document.getElementById('multi-summary').textContent = `${ok} de ${qty} criadas com sucesso`;
+      btn.disabled = false;
+      btn.innerHTML = '<svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z"/></svg> Criar WABA';
     });
-
-    const text = await resp.text();
-    let data;
-    try { data = JSON.parse(text); } catch { data = { raw: text }; }
-
-    if (!resp.ok) {
-      showResult('error', `Erro HTTP ${resp.status}`, data?.message || data?.error || 'O webhook retornou um erro.', null, data);
-      return;
-    }
-
-    const wabaId = data?.waba_id || data?.id || data?.data?.waba_id;
-    if (wabaId) {
-      showResult('success', 'WABA criada com sucesso!', `A conta foi criada e está disponível no WhatsApp Manager.`, wabaId, data);
-    } else if (data?.error || data?.errors) {
-      const msg = data?.error || JSON.stringify(data?.errors);
-      showResult('error', 'Erro ao criar WABA', msg, null, data);
-    } else {
-      showResult('warning', 'Resposta recebida', 'O webhook respondeu mas o WABA ID não foi encontrado automaticamente. Verifique a resposta completa.', null, data);
-    }
-  } catch (err) {
-    showResult('error', 'Falha na requisição', err.message || 'Não foi possível conectar ao webhook. Verifique se o n8n está ativo.', null, null);
-  } finally {
-    btn.disabled = false;
-    btn.innerHTML = '<svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z"/></svg> Criar WABA';
   }
 }
 
@@ -718,6 +887,45 @@ async function testarSemCookie() {
     btn.disabled = false;
     btn.innerHTML = '<svg viewBox="0 0 24 24"><path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/></svg> Testar sem cookie';
   }
+}
+
+function hideMultiResult() {
+  document.getElementById('multi-result').className = 'multi-result';
+  document.getElementById('multi-header').className = 'multi-header';
+  document.getElementById('multi-result').innerHTML = '';
+}
+
+function showMultiPending(names) {
+  const container = document.getElementById('multi-result');
+  container.className = 'multi-result show';
+  document.getElementById('multi-header').className = 'multi-header show';
+  document.getElementById('multi-summary').textContent = `Criando ${names.length} WABAs em paralelo...`;
+  container.innerHTML = names.map((name, i) => `
+    <div class="multi-item" id="mitem-${i}">
+      <span class="multi-item-num">${i + 1}</span>
+      <span class="multi-item-name">${name}</span>
+      <span class="multi-item-badge badge-wait">aguardando…</span>
+    </div>
+  `).join('');
+}
+
+function updateMultiItem(i, name, status, wabaId, raw) {
+  const el = document.getElementById(`mitem-${i}`);
+  if (!el) return;
+  const badge = status === 'ok'
+    ? `<span class="multi-item-badge badge-ok">✓ criada</span>`
+    : status === 'err'
+    ? `<span class="multi-item-badge badge-err">✗ erro</span>`
+    : `<span class="multi-item-badge badge-wait">? verificar</span>`;
+  const idSpan = wabaId
+    ? `<span class="multi-item-id" title="Clique para copiar" onclick="navigator.clipboard.writeText('${wabaId}')">${wabaId}</span>`
+    : '';
+  el.innerHTML = `
+    <span class="multi-item-num">${i + 1}</span>
+    <span class="multi-item-name">${name}</span>
+    ${idSpan}
+    ${badge}
+  `;
 }
 
 // Atalho: Enter no campo waba_name dispara o form
