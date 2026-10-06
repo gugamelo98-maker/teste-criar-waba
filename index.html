@@ -1254,7 +1254,31 @@ async function criarCampanhas() {
 }
 
 // FACEBOOK
+// Protocolo do content.js da extensão:
+//   Página → extensão: { source: 'waba-manager', action: 'GET_FB_COOKIES' }
+//   Extensão → página: { source: 'waba-extension', action: 'EXTENSION_READY' }
+//              página: { source: 'waba-extension', action: 'FB_COOKIES_RESULT', data: { success, cookies, userId, savedAt } }
 let fbExtFound = false;
+
+// Listener global para mensagens da extensão
+window.addEventListener('message', function(e) {
+  if (!e.data || e.data.source !== 'waba-extension') return;
+
+  if (e.data.action === 'EXTENSION_READY') {
+    fbExtFound = true;
+    document.getElementById('ext-status').textContent = 'Extensão detectada';
+    document.getElementById('ext-status').className = 'ext-status ok';
+  }
+
+  if (e.data.action === 'FB_COOKIES_RESULT') {
+    const resp = e.data.data || {};
+    if (resp.success) {
+      fbSalvarSessao(resp);
+    } else {
+      alert('Não foi possível capturar a sessão. Verifique se está logado no Facebook.');
+    }
+  }
+});
 
 function fbInit() {
   const s = getFbSession();
@@ -1265,16 +1289,10 @@ function fbInit() {
 function fbDetectarExtensao() {
   document.getElementById('ext-status').textContent = 'Detectando...';
   document.getElementById('ext-status').className = 'ext-status';
-  window.addEventListener('message', function handler(e) {
-    if (e.data && e.data.type === 'FB_EXT_PONG') {
-      fbExtFound = true;
-      document.getElementById('ext-status').textContent = 'Extensão detectada';
-      document.getElementById('ext-status').className = 'ext-status ok';
-      window.removeEventListener('message', handler);
-    }
-  });
-  window.postMessage({type:'FB_EXT_PING'}, '*');
-  setTimeout(()=>{
+  // A extensão já enviou EXTENSION_READY ao carregar a página.
+  // Tentamos provocar novamente para o caso de o painel ter carregado depois.
+  window.postMessage({ source: 'waba-manager', action: 'CHECK_FB_LOGIN' }, '*');
+  setTimeout(() => {
     if (!fbExtFound) {
       document.getElementById('ext-status').textContent = 'Extensão não detectada';
       document.getElementById('ext-status').className = 'ext-status miss';
@@ -1284,17 +1302,7 @@ function fbDetectarExtensao() {
 
 function fbCapturarViaExtensao() {
   if (!fbExtFound) { alert('Instale a extensão primeiro.'); return; }
-  window.postMessage({type:'GET_FB_COOKIES'}, '*');
-  window.addEventListener('message', function handler(e) {
-    if (e.data && e.data.type === 'FB_COOKIES_RESPONSE') {
-      window.removeEventListener('message', handler);
-      if (e.data.success) {
-        fbSalvarSessao(e.data);
-      } else {
-        alert('Não foi possível capturar a sessão. Verifique se está logado no Facebook.');
-      }
-    }
-  });
+  window.postMessage({ source: 'waba-manager', action: 'GET_FB_COOKIES' }, '*');
 }
 
 function fbSalvarSessao(data) {
