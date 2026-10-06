@@ -1,0 +1,689 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Criar WABA</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+  :root {
+    --bg: #0f1117;
+    --surface: #1a1d27;
+    --surface2: #222536;
+    --border: #2d3048;
+    --border-hover: #4a4f7a;
+    --fg: #e8eaf6;
+    --fg-muted: #8b90b8;
+    --accent: #6c63ff;
+    --accent-hover: #7c74ff;
+    --accent-dim: rgba(108, 99, 255, 0.15);
+    --green: #4caf8e;
+    --green-dim: rgba(76, 175, 142, 0.12);
+    --red: #e05c6e;
+    --red-dim: rgba(224, 92, 110, 0.12);
+    --yellow: #e8b84b;
+    --yellow-dim: rgba(232, 184, 75, 0.12);
+    --radius: 10px;
+    --radius-sm: 6px;
+    color-scheme: dark;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html, body {
+    height: 100%;
+    background: var(--bg);
+    color: var(--fg);
+    font-family: 'Inter', system-ui, sans-serif;
+    font-size: 14px;
+    line-height: 1.6;
+  }
+
+  body {
+    min-height: 100vh;
+    padding: 32px 16px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 24px;
+  }
+
+  .logo-bar {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .logo-icon {
+    width: 36px;
+    height: 36px;
+    background: var(--accent);
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+
+  .logo-icon svg {
+    width: 20px;
+    height: 20px;
+    fill: white;
+  }
+
+  .logo-text {
+    font-size: 20px;
+    font-weight: 700;
+    letter-spacing: -0.5px;
+  }
+
+  .logo-text span {
+    color: var(--accent);
+  }
+
+  .card {
+    width: 100%;
+    max-width: 640px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+  }
+
+  .card-header {
+    padding: 20px 24px 16px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .card-header-icon {
+    width: 32px;
+    height: 32px;
+    background: var(--accent-dim);
+    border-radius: var(--radius-sm);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+
+  .card-header-icon svg {
+    width: 16px;
+    height: 16px;
+    fill: var(--accent);
+  }
+
+  .card-title {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--fg);
+  }
+
+  .card-subtitle {
+    font-size: 12px;
+    color: var(--fg-muted);
+    margin-top: 1px;
+  }
+
+  .card-body {
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+  }
+
+  .field {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  label {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--fg-muted);
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+  }
+
+  label .required {
+    color: var(--red);
+    margin-left: 2px;
+  }
+
+  input, textarea, select {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    color: var(--fg);
+    font-family: inherit;
+    font-size: 14px;
+    padding: 10px 12px;
+    width: 100%;
+    transition: border-color 0.15s;
+    outline: none;
+  }
+
+  input:focus, textarea:focus, select:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-dim);
+  }
+
+  input::placeholder, textarea::placeholder {
+    color: var(--fg-muted);
+    opacity: 0.6;
+  }
+
+  textarea {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    resize: vertical;
+    min-height: 100px;
+    max-height: 220px;
+    line-height: 1.5;
+  }
+
+  .hint {
+    font-size: 11.5px;
+    color: var(--fg-muted);
+    display: flex;
+    align-items: flex-start;
+    gap: 6px;
+  }
+
+  .hint svg {
+    width: 13px;
+    height: 13px;
+    fill: var(--fg-muted);
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+
+  .row {
+    display: flex;
+    gap: 12px;
+  }
+
+  .row .field {
+    flex: 1;
+  }
+
+  select {
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='%238b90b8'%3E%3Cpath d='M7 10l5 5 5-5z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 10px center;
+    cursor: pointer;
+  }
+
+  select option {
+    background: var(--surface2);
+  }
+
+  .btn {
+    background: var(--accent);
+    border: none;
+    border-radius: var(--radius-sm);
+    color: white;
+    cursor: pointer;
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 600;
+    padding: 12px 20px;
+    width: 100%;
+    transition: background 0.15s, transform 0.1s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+  }
+
+  .btn:hover:not(:disabled) { background: var(--accent-hover); }
+  .btn:active:not(:disabled) { transform: scale(0.99); }
+  .btn:disabled { opacity: 0.6; cursor: not-allowed; }
+
+  .btn svg { width: 16px; height: 16px; fill: white; }
+
+  .spinner {
+    width: 16px; height: 16px;
+    border: 2px solid rgba(255,255,255,0.3);
+    border-top-color: white;
+    border-radius: 50%;
+    animation: spin 0.7s linear infinite;
+    flex-shrink: 0;
+  }
+
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* Result card */
+  .result {
+    width: 100%;
+    max-width: 640px;
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+    overflow: hidden;
+    display: none;
+  }
+
+  .result.show { display: block; }
+
+  .result-header {
+    padding: 14px 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-weight: 600;
+    font-size: 14px;
+  }
+
+  .result-header svg {
+    width: 18px; height: 18px;
+    flex-shrink: 0;
+  }
+
+  .result.success .result-header {
+    background: var(--green-dim);
+    color: var(--green);
+    border-bottom: 1px solid rgba(76,175,142,0.2);
+  }
+
+  .result.success .result-header svg { fill: var(--green); }
+
+  .result.error .result-header {
+    background: var(--red-dim);
+    color: var(--red);
+    border-bottom: 1px solid rgba(224,92,110,0.2);
+  }
+
+  .result.error .result-header svg { fill: var(--red); }
+
+  .result.warning .result-header {
+    background: var(--yellow-dim);
+    color: var(--yellow);
+    border-bottom: 1px solid rgba(232,184,75,0.2);
+  }
+
+  .result.warning .result-header svg { fill: var(--yellow); }
+
+  .result-body {
+    background: var(--surface);
+    padding: 16px 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .waba-id-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 12px 14px;
+  }
+
+  .waba-id-label {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--fg-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    white-space: nowrap;
+  }
+
+  .waba-id-value {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 15px;
+    font-weight: 500;
+    color: var(--green);
+    flex: 1;
+    word-break: break-all;
+  }
+
+  .copy-btn {
+    background: none;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    color: var(--fg-muted);
+    cursor: pointer;
+    font-size: 11px;
+    padding: 5px 10px;
+    white-space: nowrap;
+    transition: all 0.15s;
+    font-family: inherit;
+  }
+
+  .copy-btn:hover { border-color: var(--accent); color: var(--accent); }
+  .copy-btn.copied { border-color: var(--green); color: var(--green); }
+
+  .raw-toggle {
+    background: none;
+    border: none;
+    color: var(--fg-muted);
+    cursor: pointer;
+    font-size: 12px;
+    font-family: inherit;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    padding: 0;
+  }
+
+  .raw-toggle:hover { color: var(--fg); }
+  .raw-toggle svg { width: 12px; height: 12px; fill: currentColor; transition: transform 0.2s; }
+  .raw-toggle.open svg { transform: rotate(90deg); }
+
+  .raw-json {
+    display: none;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 12px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11.5px;
+    color: var(--fg-muted);
+    overflow-x: auto;
+    white-space: pre;
+    max-height: 300px;
+    overflow-y: auto;
+    line-height: 1.5;
+  }
+
+  .raw-json.show { display: block; }
+
+  /* Webhook info */
+  .webhook-pill {
+    width: 100%;
+    max-width: 640px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 10px 14px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 12px;
+    color: var(--fg-muted);
+    font-family: 'JetBrains Mono', monospace;
+    overflow: hidden;
+  }
+
+  .webhook-pill-dot {
+    width: 7px; height: 7px;
+    background: var(--green);
+    border-radius: 50%;
+    flex-shrink: 0;
+    box-shadow: 0 0 6px var(--green);
+    animation: pulse 2s ease-in-out infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.4; }
+  }
+
+  .webhook-url {
+    flex: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    color: var(--fg);
+    font-size: 11px;
+  }
+
+  @media (max-width: 440px) {
+    body { padding: 20px 12px; }
+    .card-body { padding: 18px; }
+    .row { flex-direction: column; }
+  }
+</style>
+</head>
+<body>
+
+<div class="logo-bar">
+  <div class="logo-icon">
+    <svg viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+  </div>
+  <span class="logo-text">Criar <span>WABA</span></span>
+</div>
+
+<div class="webhook-pill">
+  <div class="webhook-pill-dot"></div>
+  <span class="webhook-url">https://rarelookingorca-n8n.cloudfy.live/webhook/waba-create-meta</span>
+</div>
+
+<div class="card">
+  <div class="card-header">
+    <div class="card-header-icon">
+      <svg viewBox="0 0 24 24"><path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm0 10.99h7c-.53 4.12-3.28 7.79-7 8.94V12H5V6.3l7-3.11v8.8z"/></svg>
+    </div>
+    <div>
+      <div class="card-title">Sessão Meta Business Suite</div>
+      <div class="card-subtitle">Cole os cookies do F12 e configure a conta</div>
+    </div>
+  </div>
+
+  <form class="card-body" id="form" onsubmit="return false;">
+    <div class="field">
+      <label>Cookies da Sessão <span class="required">*</span></label>
+      <textarea
+        id="cookies"
+        placeholder="datr=...; sb=...; c_user=100006...; xs=39%3A...; fr=1cDnz..."
+        rows="5"
+        spellcheck="false"
+        autocomplete="off"
+      ></textarea>
+      <div class="hint">
+        <svg viewBox="0 0 24 24"><path d="M11 17h2v-6h-2v6zm1-15C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zM11 9h2V7h-2v2z"/></svg>
+        F12 → Network → qualquer request → Headers → <em>cookie</em>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="field">
+        <label>Business ID <span class="required">*</span></label>
+        <input
+          id="business_id"
+          type="text"
+          placeholder="803068770186829"
+          autocomplete="off"
+          spellcheck="false"
+        >
+      </div>
+      <div class="field">
+        <label>Fuso Horário</label>
+        <select id="timezone_id">
+          <option value="25" selected>America/São Paulo (25)</option>
+          <option value="1">America/New_York (1)</option>
+          <option value="2">America/Chicago (2)</option>
+          <option value="3">America/Denver (3)</option>
+          <option value="4">America/Los_Angeles (4)</option>
+          <option value="5">America/Anchorage (5)</option>
+          <option value="6">Pacific/Honolulu (6)</option>
+          <option value="24">America/Manaus (24)</option>
+          <option value="26">America/Fortaleza (26)</option>
+          <option value="27">America/Noronha (27)</option>
+          <option value="65">Europe/Lisbon (65)</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="field">
+      <label>Nome da WABA <span class="required">*</span></label>
+      <input
+        id="waba_name"
+        type="text"
+        placeholder="Ex: Atendimento, Suporte, Marketing..."
+        autocomplete="off"
+      >
+    </div>
+
+    <button class="btn" id="submitBtn" onclick="criarWABA()">
+      <svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z"/></svg>
+      Criar WABA
+    </button>
+  </form>
+</div>
+
+<!-- Result -->
+<div class="result" id="result">
+  <div class="result-header" id="result-header">
+    <svg id="result-icon" viewBox="0 0 24 24"></svg>
+    <span id="result-title"></span>
+  </div>
+  <div class="result-body">
+    <div class="waba-id-row" id="waba-id-row" style="display:none">
+      <span class="waba-id-label">WABA ID</span>
+      <span class="waba-id-value" id="waba-id-value"></span>
+      <button class="copy-btn" id="copy-btn" onclick="copyWabaId()">Copiar</button>
+    </div>
+    <div id="result-message" style="font-size:13px;color:var(--fg-muted);line-height:1.6;"></div>
+    <div style="display:flex; justify-content:space-between; align-items:center;">
+      <button class="raw-toggle" id="raw-toggle" onclick="toggleRaw()">
+        <svg viewBox="0 0 24 24"><path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z"/></svg>
+        Ver resposta completa
+      </button>
+    </div>
+    <pre class="raw-json" id="raw-json"></pre>
+  </div>
+</div>
+
+<script>
+const WEBHOOK = 'https://rarelookingorca-n8n.cloudfy.live/webhook/waba-create-meta';
+
+async function criarWABA() {
+  const cookies     = document.getElementById('cookies').value.trim();
+  const business_id = document.getElementById('business_id').value.trim();
+  const waba_name   = document.getElementById('waba_name').value.trim();
+  const timezone_id = parseInt(document.getElementById('timezone_id').value);
+
+  if (!cookies || !business_id || !waba_name) {
+    showResult('error', 'Campos obrigatórios', 'Preencha os cookies, Business ID e nome da WABA.', null, null);
+    return;
+  }
+
+  const btn = document.getElementById('submitBtn');
+  btn.disabled = true;
+  btn.innerHTML = '<div class="spinner"></div> Criando WABA...';
+
+  hideResult();
+
+  try {
+    const resp = await fetch(WEBHOOK, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ cookies, business_id, waba_name, timezone_id }),
+    });
+
+    const text = await resp.text();
+    let data;
+    try { data = JSON.parse(text); } catch { data = { raw: text }; }
+
+    if (!resp.ok) {
+      showResult('error', `Erro HTTP ${resp.status}`, data?.message || data?.error || 'O webhook retornou um erro.', null, data);
+      return;
+    }
+
+    const wabaId = data?.waba_id || data?.id || data?.data?.waba_id;
+    if (wabaId) {
+      showResult('success', 'WABA criada com sucesso!', `A conta foi criada e está disponível no WhatsApp Manager.`, wabaId, data);
+    } else if (data?.error || data?.errors) {
+      const msg = data?.error || JSON.stringify(data?.errors);
+      showResult('error', 'Erro ao criar WABA', msg, null, data);
+    } else {
+      showResult('warning', 'Resposta recebida', 'O webhook respondeu mas o WABA ID não foi encontrado automaticamente. Verifique a resposta completa.', null, data);
+    }
+  } catch (err) {
+    showResult('error', 'Falha na requisição', err.message || 'Não foi possível conectar ao webhook. Verifique se o n8n está ativo.', null, null);
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = '<svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z"/></svg> Criar WABA';
+  }
+}
+
+function showResult(type, title, message, wabaId, raw) {
+  const resultEl   = document.getElementById('result');
+  const headerEl   = document.getElementById('result-header');
+  const iconEl     = document.getElementById('result-icon');
+  const titleEl    = document.getElementById('result-title');
+  const msgEl      = document.getElementById('result-message');
+  const wabaRow    = document.getElementById('waba-id-row');
+  const wabaValEl  = document.getElementById('waba-id-value');
+  const rawEl      = document.getElementById('raw-json');
+  const rawToggle  = document.getElementById('raw-toggle');
+
+  resultEl.className = 'result show ' + type;
+
+  const icons = {
+    success: '<path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>',
+    error:   '<path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/>',
+    warning: '<path d="M1 21h22L12 2 1 21zm12-3h-2v-2h2v2zm0-4h-2v-4h2v4z"/>',
+  };
+
+  iconEl.innerHTML = icons[type] || icons.warning;
+  titleEl.textContent = title;
+  msgEl.textContent = message;
+
+  if (wabaId) {
+    wabaRow.style.display = 'flex';
+    wabaValEl.textContent = wabaId;
+    document.getElementById('copy-btn').textContent = 'Copiar';
+    document.getElementById('copy-btn').classList.remove('copied');
+  } else {
+    wabaRow.style.display = 'none';
+  }
+
+  if (raw) {
+    rawEl.textContent = JSON.stringify(raw, null, 2);
+    rawToggle.style.display = 'flex';
+  } else {
+    rawToggle.style.display = 'none';
+    rawEl.classList.remove('show');
+    rawToggle.classList.remove('open');
+  }
+
+  resultEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
+function hideResult() {
+  document.getElementById('result').className = 'result';
+}
+
+function toggleRaw() {
+  const raw    = document.getElementById('raw-json');
+  const toggle = document.getElementById('raw-toggle');
+  const showing = raw.classList.toggle('show');
+  toggle.classList.toggle('open', showing);
+  toggle.querySelector('span') && (toggle.querySelector('span').textContent = showing ? 'Ocultar resposta' : 'Ver resposta completa');
+}
+
+function copyWabaId() {
+  const val = document.getElementById('waba-id-value').textContent;
+  const btn = document.getElementById('copy-btn');
+  navigator.clipboard.writeText(val).then(() => {
+    btn.textContent = 'Copiado!';
+    btn.classList.add('copied');
+    setTimeout(() => {
+      btn.textContent = 'Copiar';
+      btn.classList.remove('copied');
+    }, 2000);
+  }).catch(() => {
+    const sel = window.getSelection();
+    const range = document.createRange();
+    range.selectNodeContents(document.getElementById('waba-id-value'));
+    sel.removeAllRanges();
+    sel.addRange(range);
+  });
+}
+
+// Atalho: Enter no campo waba_name dispara o form
+document.getElementById('waba_name').addEventListener('keydown', e => {
+  if (e.key === 'Enter') criarWABA();
+});
+</script>
+
+</body>
+</html>
